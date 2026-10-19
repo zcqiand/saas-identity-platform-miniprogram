@@ -1,5 +1,9 @@
 import { Configuration, type FetchAPI } from "../generated/runtime";
-import { taroFetch } from "./taro-fetch";
+import { setOnUnauthorized, taroFetch } from "./taro-fetch";
+
+// D3 桥层 401 注册口：实现与拦截点在 taro-fetch（唯一 Taro.request 出口的响应
+// 路径），此处转出口面——App 层由此注册「清会话回登录页」回调。
+export { setOnUnauthorized };
 
 /**
  * 生成物客户端的全局配置入口，语义照 swift 仓 APIClient.bootstrap（missingToken 抛错）。

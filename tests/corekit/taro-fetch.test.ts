@@ -4,7 +4,7 @@ const request = vi.hoisted(() => vi.fn());
 
 vi.mock("@tarojs/taro", () => ({ default: { request }, request }));
 
-import { taroFetch } from "../../src/corekit/taro-fetch";
+import { setOnUnauthorized, taroFetch } from "../../src/corekit/taro-fetch";
 
 describe("taroFetch bridge", () => {
   beforeEach(() => request.mockReset());
@@ -39,6 +39,25 @@ describe("taroFetch bridge", () => {
     expect(res.ok).toBe(true);
     expect(res.status).toBe(204);
     expect(await res.text()).toBe("");
+  });
+
+  it("401 → 桥层回调触发恰一次，Response 照常返回（swift APIGlue 拦截后 rethrow 同构）", async () => {
+    const cb = vi.fn();
+    setOnUnauthorized(cb);
+    request.mockResolvedValue({ statusCode: 401, data: "token expired", header: {} });
+    const res = await taroFetch("http://localhost:5104/api/v1/me", { method: "GET" });
+    expect(cb).toHaveBeenCalledTimes(1);
+    expect(res.ok).toBe(false);
+    expect(res.status).toBe(401);
+  });
+
+  it("非 401（500）不触发回调", async () => {
+    const cb = vi.fn();
+    setOnUnauthorized(cb);
+    request.mockResolvedValue({ statusCode: 500, data: "boom", header: {} });
+    const res = await taroFetch("http://localhost:5104/api/v1/me", { method: "GET" });
+    expect(cb).not.toHaveBeenCalled();
+    expect(res.status).toBe(500);
   });
 
   it("deserializes string JSON body into Taro data object (serialization contract)", async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bootstrap, currentConfig } from "../../src/corekit/api-client";
+import { bootstrap, currentConfig, setOnUnauthorized } from "../../src/corekit/api-client";
 
 describe("api-client bootstrap", () => {
   it("throws on empty baseURL — 禁 env 默认值兜底（suite-hard-rules §1）", () => {
@@ -28,5 +28,9 @@ describe("api-client bootstrap", () => {
 
   it("bootstrap(baseURL, '  ') 已登录口径空 token 仍然 throw（既有 fail-fast 语义保留）", () => {
     expect(() => bootstrap("http://localhost:5104", "   ")).toThrow(/token/i);
+  });
+
+  it("re-export setOnUnauthorized（D3 桥层 401 注册口，页面禁各自处理）", () => {
+    expect(typeof setOnUnauthorized).toBe("function");
   });
 });

@@ -135,6 +135,16 @@ export class SessionStore {
     this.reBootstrap(response.accessToken);
   }
 
+  /** 成员关系真值覆盖（swift refreshTenants :212-224）：meListMyTenants 刷新入账，
+   * 空数组也照写（真值即空）；需 ready，未登录 throw 且一个字节不动。写穿 storage。 */
+  refreshTenants(tenants: TenantMembership[]): void {
+    if (this._phase !== "ready" || !this._snapshot) {
+      throw new Error("未登录，不能刷新成员关系（需 ready）");
+    }
+    this._snapshot = { ...this._snapshot, tenants };
+    this.writeSnapshot();
+  }
+
   /** 登出/401 失效共用（swift logout :227-238）：清密态 + 快照，留配置直接回登录页。
    * 本地清理强制；服务端调用尽力而为属调用方（Task 2 动作面）职责。 */
   adoptLogout(): void {

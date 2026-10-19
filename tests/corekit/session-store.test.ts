@@ -249,4 +249,21 @@ describe("SessionStore（状态机随 swift SessionStore）", () => {
     expect(storage.has("corekit.session")).toBe(false);
     expect(authHeader()).toBeNull();
   });
+
+  it("refreshTenants 真值覆盖 + 写穿 storage（swift :212-224，空数组也照写）", () => {
+    const store = makeStore();
+    store.adoptLogin(loginRes());
+    store.refreshTenants([]);
+    expect(store.snapshot()?.tenants).toEqual([]);
+    const persisted = JSON.parse(storage.get("corekit.session") ?? "{}") as {
+      tenants?: unknown;
+    };
+    expect(persisted.tenants).toEqual([]);
+  });
+
+  it("refreshTenants 未登录（needsLogin）→ throw 且 store 不动", () => {
+    const store = makeStore();
+    expect(() => store.refreshTenants([membership])).toThrow(/未登录|ready/);
+    expect(store.snapshot()).toBeUndefined();
+  });
 });
