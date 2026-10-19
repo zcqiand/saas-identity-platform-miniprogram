@@ -29,7 +29,7 @@ import { useAuth } from "../../src/corekit/use-auth";
 import { fnTest } from "../fn";
 import { SessionStore } from "../../src/corekit/session-store";
 import { createInMemoryTokenStore, type TokenStore } from "../../src/corekit/token-store";
-import { ResponseError } from "../../src/generated/runtime";
+import { FetchError, ResponseError } from "../../src/generated/runtime";
 import type {
   CurrentUser,
   LoginResponse,
@@ -235,6 +235,21 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
       expect(tokenStore.getRefreshToken()).toBeUndefined();
       expect(hook.current!.user).toBeUndefined();
       expect(hook.current!.tenants).toEqual([]);
+    },
+  );
+
+  fnTest(
+    ["M01.F04.I01"],
+    "login 传输层失败（FetchError 带 cause）→ error 露出底层 errMsg（knife2 T5 诊断钉：appservice 全局量缺口定案依据）",
+    async () => {
+      seams.auth.sessionsLogin.mockRejectedValue(
+        new FetchError(new Error("request:fail socket time out")),
+      );
+      const hook = mount();
+      const out = await call(() => hook.current!.login("alice", "dev123456"));
+      expect(out.ok).toBe(false);
+      expect(hook.current!.error).toContain("request:fail socket time out");
+      expect(hook.current!.phase).toBe("needsLogin");
     },
   );
 

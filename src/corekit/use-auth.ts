@@ -86,7 +86,11 @@ function errorMessage(error: unknown): string {
   if (error instanceof ResponseError) {
     return `请求失败（HTTP ${error.response.status}）`;
   }
-  return String(error);
+  // 诊断透传（T5 live 临时）：FetchError 包住原始 Taro.request 错误（cause.errMsg），
+  // String(cause) 只给泛化文案；模拟器定案后回退。
+  const cause = (error as { cause?: unknown }).cause;
+  const causeText = cause ? String(cause) : "";
+  return causeText ? `${String(error)} <- ${causeText}` : String(error);
 }
 
 interface SessionView {

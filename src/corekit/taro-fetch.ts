@@ -1,5 +1,13 @@
 import Taro from "@tarojs/taro";
 
+import { installWeappGlobals } from "./weapp-globals-shim";
+
+// appservice（DevTools 2.02 实测 + 真机同形态）缺 Headers/Response/URLSearchParams，
+// 桥与生成 runtime.ts:176 都会撞 ReferenceError——请求还没出模拟器就死。
+// 模块加载即补装（早于任何请求），只补缺失（jsdom/node 自带时零影响）。
+// 垫层形状与消费点清单一一对应，见 weapp-globals-shim.ts 头注。
+installWeappGlobals(globalThis);
+
 /**
  * 唯一的 Taro.request 出口：把生成物（typescript-fetch）期望的 fetch 形状
  * 桥接到小程序传输层。组件与页面禁止直接调 Taro.request（本仓 CLAUDE.md §2）。
