@@ -1,0 +1,14 @@
+{
+  "miniprogramRoot": "dist/",
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "saas-identity-platform-miniprogram",
+  "setting": {
+    "es6": false,
+    "enhance": true,
+    "postcss": true,
+    "minified": false,
+    "urlCheck": false
+  },
+  "libVersion": "latest"
+}

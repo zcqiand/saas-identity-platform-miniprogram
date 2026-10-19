@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "suite_version": "0.6.0",
+  "project": "saas-identity-platform-miniprogram",
+  "stack": "miniprogram",
+  "gates": {
+    "L1": {
+      "name": "格式（Prettier）",
+      "cmd": [
+        "npx",
+        "--no",
+        "prettier",
+        "--check",
+        "src",
+        "tests",
+        "config"
+      ],
+      "fix": "先确认 npm install 跑过。然后 npx prettier --write src tests config。"
+    },
+    "L2": {
+      "name": "静态检查（ESLint）",
+      "cmd": [
+        "npx",
+        "--no",
+        "eslint",
+        "src",
+        "tests",
+        "config"
+      ],
+      "fix": "逐条修复 eslint。禁止用 eslint-disable 掩盖，除非同行注释给出理由。"
+    },
+    "L3": {
+      "name": "类型（tsc）",
+      "cmd": [
+        "npx",
+        "--no",
+        "tsc",
+        "--noEmit"
+      ],
+      "fix": "补全类型。禁止 any / @ts-ignore 绕过，除非附 ADR 说明。"
+    },
+    "L4": {
+      "name": "测试（vitest）",
+      "cmd": [
+        "npx",
+        "--no",
+        "vitest",
+        "run"
+      ],
+      "fix": "先让测试变绿，再谈重构。若测试本身有误，改测试前必须先说明理由。"
+    }
+  },
+  "trace_cmd": [
+    "npx",
+    "--no",
+    "vitest",
+    "run"
+  ],
+  "trace_env": {
+    "TRACE_MAP": "1"
+  },
+  "source_dirs": [
+    "src"
+  ],
+  "test_dirs": [
+    "tests"
+  ]
+}

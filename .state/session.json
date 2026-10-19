@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "project": "saas-identity-platform-miniprogram",
+  "current_task": "项目已初始化，等待第一个需求",
+  "done": ["脚手架生成，门禁全绿"],
+  "next": "跑 /req <需求原话> 落第一份需求文档，同时把 docs/functions/function-tree.md 填成真实功能清单",
+  "open_questions": [],
+  "dont": [
+    "不要改 .harness/stack.json 让门变松",
+    "不要给 skip 的测试挂功能 ID"
+  ],
+  "last_gate_passed_at": null
+}

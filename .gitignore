@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.state/trace.json
+.state/gate.json
+/.env
+/.env.*
+!/.env.example

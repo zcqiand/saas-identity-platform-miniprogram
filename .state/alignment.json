@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "project": "saas-identity-platform-miniprogram",
+  "functions": {
+    "modules": 1,
+    "features": 1,
+    "items": 1
+  },
+  "warnings_total": 0,
+  "warnings": {},
+  "unreachable_shipped": [],
+  "function_map": {
+    "M01.F01.I01": {
+      "name": "（待填）",
+      "status": "规划",
+      "type": "查询",
+      "requirements": [],
+      "flows": [],
+      "designs": [],
+      "tests": [
+        "output\\saas-identity-platform-contract-test\\tests\\me.test.ts:670 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\me.test.ts:850 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\path.test.ts:1072 (path)",
+        "output\\saas-identity-platform-contract-test\\tests\\path.test.ts:1117 (path)"
+      ],
+      "entry": []
+    }
+  }
+}

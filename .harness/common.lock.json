@@ -1,0 +1,17 @@
+{
+  ".claude\\agents\\README.md": "5bd970e0e92df1e0",
+  ".claude\\agents\\alignment-auditor.md": "71cceb00ca93a3b8",
+  ".claude\\agents\\code-reviewer.md": "bd70cd599928af12",
+  ".claude\\skills\\adr-writer\\SKILL.md": "c2ff1243e51aa4e2",
+  ".claude\\skills\\adr-writer\\references\\template.md": "3536745543755067",
+  ".claude\\skills\\alignment\\SKILL.md": "87f63aa6a948caab",
+  ".claude\\skills\\brainstorming\\SKILL.md": "e84d5c9b0fcdd735",
+  ".claude\\skills\\executing-plans\\SKILL.md": "47be619aff768f84",
+  ".claude\\skills\\gate-runner\\SKILL.md": "c2e10e18ef0f6917",
+  ".claude\\skills\\reachability\\SKILL.md": "e2cfc71c64037ef7",
+  ".claude\\skills\\red-first\\SKILL.md": "96effede12d8dce9",
+  ".claude\\skills\\systematic-debugging\\SKILL.md": "64d6d3011675f8dd",
+  ".claude\\skills\\using-skills\\SKILL.md": "7927d73615473f3f",
+  ".claude\\skills\\using-worktrees\\SKILL.md": "c49c8f254349ccd9",
+  ".claude\\skills\\writing-plans\\SKILL.md": "b016aa33fc4f3de5"
+}
