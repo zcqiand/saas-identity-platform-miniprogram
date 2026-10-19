@@ -22,6 +22,7 @@ SaaS 身份平台小程序端（`saas-identity-platform-miniprogram`，技术栈
 - 禁止绕过 shared 契约生成物手写 API 面（suite-hard-rules §4，Phase 1 起生效）
 - 禁止 wx.* 原生 API 与 Taro.setStorage* 散落组件；统一走封装层与 src/store/
 - npm 依赖一律走 registry.npmmirror.com
+- `npm run gen-shared` 前提：openapitools.json 钉 7.25.0（本机 npx 可能解析到 7.24.0 产生真 diff，勿提交 regen 噪声）；core.autocrlf 下新克隆首跑 regen 有行尾假 diff，对比后再定
 
 ## 3. 技术栈与版本（钉死于 version-lock.json）
 
