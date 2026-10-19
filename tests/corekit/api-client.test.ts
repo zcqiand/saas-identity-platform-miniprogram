@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { bootstrap, currentConfig, setOnUnauthorized } from "../../src/corekit/api-client";
+import {
+  bootstrap,
+  currentConfig,
+  setOnUnauthorized,
+} from "../../src/corekit/api-client";
 
 describe("api-client bootstrap", () => {
   it("throws on empty baseURL — 禁 env 默认值兜底（suite-hard-rules §1）", () => {

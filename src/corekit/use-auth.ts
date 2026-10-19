@@ -57,8 +57,9 @@ export interface UseAuthResult {
 let sharedStore: SessionStore | undefined;
 
 /** 进程级共享 store（App 层单例）；apiBaseUrl 走 thunk 缺失时由 SessionStore
- * 判 needsSetup，此处不做 env 兜底（suite-hard-rules §1）。 */
-function sharedSessionStore(clientId: string): SessionStore {
+ * 判 needsSetup，此处不做 env 兜底（suite-hard-rules §1）。App 层 401 回调与
+ * 启动跳板经此取同一实例（T4 接线），页面经 useAuth 缺省也落到它。 */
+export function sharedSessionStore(clientId: string): SessionStore {
   if (!sharedStore) {
     sharedStore = new SessionStore({
       tokenStore: createTaroTokenStore(),
@@ -70,7 +71,13 @@ function sharedSessionStore(clientId: string): SessionStore {
 }
 
 function defaultSeams(): AuthSeams {
+  // fail-fast（T2 挂账 minor）：bootstrap 未跑就现配 API 会静默打到空 basePath，宁可早炸
   const config = currentConfig();
+  if (!config) {
+    throw new Error(
+      "currentConfig() 缺失：先 bootstrap(baseURL) 再发请求（禁默认值兜底，suite-hard-rules §1）",
+    );
+  }
   return { auth: new AuthApi(config), me: new MeApi(config) };
 }
 

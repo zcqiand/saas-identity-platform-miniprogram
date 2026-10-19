@@ -1,0 +1,64 @@
+.account {
+  padding: 40px 24px;
+
+  .account-section {
+    margin-bottom: 40px;
+  }
+
+  .account-section-title {
+    display: block;
+    margin-bottom: 16px;
+    font-size: 32px;
+    font-weight: 600;
+  }
+
+  .account-row {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 26px;
+  }
+
+  .account-empty {
+    display: block;
+    color: #888;
+    font-size: 26px;
+  }
+
+  .account-tenant {
+    position: relative;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .account-tenant-id {
+    display: block;
+    font-size: 24px;
+    font-family: monospace;
+  }
+
+  .account-tenant-meta {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+    font-size: 22px;
+  }
+
+  .account-tenant-current {
+    position: absolute;
+    top: 16px;
+    right: 0;
+    color: #1a73e8;
+    font-size: 28px;
+  }
+
+  .account-error {
+    display: block;
+    margin-bottom: 24px;
+    color: #d93026;
+    font-size: 24px;
+  }
+
+  .account-logout {
+    margin-top: 16px;
+  }
+}

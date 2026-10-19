@@ -1,0 +1,29 @@
+.login {
+  padding: 40px 24px;
+
+  .login-header {
+    margin-bottom: 32px;
+  }
+
+  .login-title {
+    font-size: 36px;
+    font-weight: 600;
+  }
+
+  .login-field {
+    margin-bottom: 24px;
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .login-submit {
+    margin-top: 16px;
+  }
+
+  .login-error {
+    display: block;
+    margin-top: 24px;
+    color: #d93026;
+    font-size: 24px;
+  }
+}

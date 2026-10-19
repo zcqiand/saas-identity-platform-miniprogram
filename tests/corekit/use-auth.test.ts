@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * useAuth 9 条（对照 swift AuthViewModelTests，knife2 Task 2 Step 3）：
+ * useAuth 10 条（对照 swift AuthViewModelTests，knife2 Task 2 Step 3）：
  * mock 只在 seams——SessionStore 走内存缝、生成 API 方法注入 fake（反目标：
  * 不 mock 传输语义之外的东西）。React 18.3 act + react-dom/client 渲染探针，
  * jsdom 环境系 vitest 自带依赖，无新增依赖。
@@ -105,7 +105,11 @@ function makeSeams() {
 type SeamsFake = ReturnType<typeof makeSeams>;
 
 function makeStore(tokenStore: TokenStore = createInMemoryTokenStore()): SessionStore {
-  return new SessionStore({ tokenStore, apiBaseUrl: "http://localhost:5104", clientId: "saas-console" });
+  return new SessionStore({
+    tokenStore,
+    apiBaseUrl: "http://localhost:5104",
+    clientId: "saas-console",
+  });
 }
 
 function renderUseAuth(
@@ -127,7 +131,9 @@ function renderUseAuth(
 }
 
 /** 在 act 里跑一个动作，吞掉 rejection 供断言。 */
-async function call(fn: () => Promise<unknown>): Promise<{ ok: boolean; value?: unknown }> {
+async function call(
+  fn: () => Promise<unknown>,
+): Promise<{ ok: boolean; value?: unknown }> {
   let out: { ok: boolean; value?: unknown } | undefined;
   await act(async () => {
     try {
@@ -172,147 +178,191 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     seams.auth.sessionsLogin.mockClear();
   }
 
-  fnTest(["M01.F04.I01"], "login 成功 → phase ready + user/tenants 就位（请求体带 clientId，ADR-0019）", async () => {
-    seams.auth.sessionsLogin.mockResolvedValue(loginRes());
-    const hook = mount();
-    expect(hook.current!.phase).toBe("needsLogin");
+  fnTest(
+    ["M01.F04.I01"],
+    "login 成功 → phase ready + user/tenants 就位（请求体带 clientId，ADR-0019）",
+    async () => {
+      seams.auth.sessionsLogin.mockResolvedValue(loginRes());
+      const hook = mount();
+      expect(hook.current!.phase).toBe("needsLogin");
 
-    const out = await call(() => hook.current!.login("alice", "dev123456"));
-    expect(out.ok).toBe(true);
-    expect(seams.auth.sessionsLogin).toHaveBeenCalledTimes(1);
-    expect(seams.auth.sessionsLogin).toHaveBeenCalledWith({
-      loginRequest: { username: "alice", password: "dev123456", clientId: "saas-console" },
-    });
-    expect(hook.current!.phase).toBe("ready");
-    expect(hook.current!.user?.username).toBe("alice");
-    expect(hook.current!.tenants).toEqual([membership]);
-    expect(hook.current!.currentTenantId).toBe("t1");
-    expect(hook.current!.error).toBeUndefined();
-  });
+      const out = await call(() => hook.current!.login("alice", "dev123456"));
+      expect(out.ok).toBe(true);
+      expect(seams.auth.sessionsLogin).toHaveBeenCalledTimes(1);
+      expect(seams.auth.sessionsLogin).toHaveBeenCalledWith({
+        loginRequest: {
+          username: "alice",
+          password: "dev123456",
+          clientId: "saas-console",
+        },
+      });
+      expect(hook.current!.phase).toBe("ready");
+      expect(hook.current!.user?.username).toBe("alice");
+      expect(hook.current!.tenants).toEqual([membership]);
+      expect(hook.current!.currentTenantId).toBe("t1");
+      expect(hook.current!.error).toBeUndefined();
+    },
+  );
 
-  fnTest(["M01.F04.I01"], "login 缺 clientId 前置炸（ADR-0019）：请求不发、store 未动、error 落文案", async () => {
-    const hook = mount("");
-    const out = await call(() => hook.current!.login("alice", "dev123456"));
-    expect(out.ok).toBe(false);
-    expect(seams.auth.sessionsLogin).not.toHaveBeenCalled();
-    expect(hook.current!.error).toBe("clientId 未配置，请先完成配置");
-    expect(hook.current!.phase).toBe("needsLogin");
-    expect(tokenStore.getToken()).toBeUndefined();
-    expect(hook.current!.user).toBeUndefined();
-  });
+  fnTest(
+    ["M01.F04.I01"],
+    "login 缺 clientId 前置炸（ADR-0019）：请求不发、store 未动、error 落文案",
+    async () => {
+      const hook = mount("");
+      const out = await call(() => hook.current!.login("alice", "dev123456"));
+      expect(out.ok).toBe(false);
+      expect(seams.auth.sessionsLogin).not.toHaveBeenCalled();
+      expect(hook.current!.error).toBe("clientId 未配置，请先完成配置");
+      expect(hook.current!.phase).toBe("needsLogin");
+      expect(tokenStore.getToken()).toBeUndefined();
+      expect(hook.current!.user).toBeUndefined();
+    },
+  );
 
-  fnTest(["M01.F04.I01"], "login 失败（401）→ phase needsLogin + error=「请求失败（HTTP 401）」+ store 未动", async () => {
-    seams.auth.sessionsLogin.mockRejectedValue(
-      new ResponseError(new Response(null, { status: 401 })),
-    );
-    const hook = mount();
-    const out = await call(() => hook.current!.login("alice", "wrong"));
-    expect(out.ok).toBe(false);
-    expect(hook.current!.phase).toBe("needsLogin");
-    expect(hook.current!.error).toBe("请求失败（HTTP 401）");
-    expect(tokenStore.getToken()).toBeUndefined();
-    expect(tokenStore.getRefreshToken()).toBeUndefined();
-    expect(hook.current!.user).toBeUndefined();
-    expect(hook.current!.tenants).toEqual([]);
-  });
+  fnTest(
+    ["M01.F04.I01"],
+    "login 失败（401）→ phase needsLogin + error=「请求失败（HTTP 401）」+ store 未动",
+    async () => {
+      seams.auth.sessionsLogin.mockRejectedValue(
+        new ResponseError(new Response(null, { status: 401 })),
+      );
+      const hook = mount();
+      const out = await call(() => hook.current!.login("alice", "wrong"));
+      expect(out.ok).toBe(false);
+      expect(hook.current!.phase).toBe("needsLogin");
+      expect(hook.current!.error).toBe("请求失败（HTTP 401）");
+      expect(tokenStore.getToken()).toBeUndefined();
+      expect(tokenStore.getRefreshToken()).toBeUndefined();
+      expect(hook.current!.user).toBeUndefined();
+      expect(hook.current!.tenants).toEqual([]);
+    },
+  );
 
-  fnTest(["M01.F01.I01"], "whoami 成功 → user.email 更新（D6：username 快照、email whoami）", async () => {
-    const hook = mount();
-    await loginOk(hook);
-    expect(hook.current!.user?.email).toBe("alice@login.example");
+  fnTest(
+    ["M01.F01.I01"],
+    "whoami 成功 → user.email 更新（D6：username 快照、email whoami）",
+    async () => {
+      const hook = mount();
+      await loginOk(hook);
+      expect(hook.current!.user?.email).toBe("alice@login.example");
 
-    seams.me.meWhoami.mockResolvedValue(whoamiUser);
-    const out = await call(() => hook.current!.whoami());
-    expect(out.ok).toBe(true);
-    expect(hook.current!.user?.email).toBe("alice@whoami.example");
-    expect(hook.current!.user?.username).toBe("alice");
-  });
+      seams.me.meWhoami.mockResolvedValue(whoamiUser);
+      const out = await call(() => hook.current!.whoami());
+      expect(out.ok).toBe(true);
+      expect(hook.current!.user?.email).toBe("alice@whoami.example");
+      expect(hook.current!.user?.username).toBe("alice");
+    },
+  );
 
-  fnTest(["M01.F01.I01"], "whoami 失败 → user 保持 + error 落文案（不兜底清空）", async () => {
-    const hook = mount();
-    await loginOk(hook);
+  fnTest(
+    ["M01.F01.I01"],
+    "whoami 失败 → user 保持 + error 落文案（不兜底清空）",
+    async () => {
+      const hook = mount();
+      await loginOk(hook);
 
-    seams.me.meWhoami.mockRejectedValue(
-      new ResponseError(new Response(null, { status: 500 })),
-    );
-    const out = await call(() => hook.current!.whoami());
-    expect(out.ok).toBe(false);
-    expect(hook.current!.error).toBe("请求失败（HTTP 500）");
-    expect(hook.current!.user?.email).toBe("alice@login.example");
-    expect(hook.current!.phase).toBe("ready");
-  });
+      seams.me.meWhoami.mockRejectedValue(
+        new ResponseError(new Response(null, { status: 500 })),
+      );
+      const out = await call(() => hook.current!.whoami());
+      expect(out.ok).toBe(false);
+      expect(hook.current!.error).toBe("请求失败（HTTP 500）");
+      expect(hook.current!.user?.email).toBe("alice@login.example");
+      expect(hook.current!.phase).toBe("ready");
+    },
+  );
 
-  fnTest(["M01.F03.I02"], "switchTenant 成功 → 换发 token + currentTenantId 更新 + 重拉 whoami", async () => {
-    const hook = mount();
-    await loginOk(hook);
-    seams.me.meSwitchTenant.mockResolvedValue(switchRes());
-    seams.me.meWhoami.mockResolvedValue(whoamiUser);
+  fnTest(
+    ["M01.F03.I02"],
+    "switchTenant 成功 → 换发 token + currentTenantId 更新 + 重拉 whoami",
+    async () => {
+      const hook = mount();
+      await loginOk(hook);
+      seams.me.meSwitchTenant.mockResolvedValue(switchRes());
+      seams.me.meWhoami.mockResolvedValue(whoamiUser);
 
-    const out = await call(() => hook.current!.switchTenant("t2"));
-    expect(out.ok).toBe(true);
-    expect(seams.me.meSwitchTenant).toHaveBeenCalledWith({ tenantId: "t2" });
-    expect(tokenStore.getToken()).toBe("tok2");
-    expect(hook.current!.currentTenantId).toBe("t2");
-    expect(hook.current!.phase).toBe("ready");
-    expect(seams.me.meWhoami).toHaveBeenCalledTimes(1);
-  });
+      const out = await call(() => hook.current!.switchTenant("t2"));
+      expect(out.ok).toBe(true);
+      expect(seams.me.meSwitchTenant).toHaveBeenCalledWith({ tenantId: "t2" });
+      expect(tokenStore.getToken()).toBe("tok2");
+      expect(hook.current!.currentTenantId).toBe("t2");
+      expect(hook.current!.phase).toBe("ready");
+      expect(seams.me.meWhoami).toHaveBeenCalledTimes(1);
+    },
+  );
 
-  fnTest(["M01.F03.I02"], "switchTenant 失败 → 保旧会话（token/currentTenantId 原样）+ error 可重试", async () => {
-    const hook = mount();
-    await loginOk(hook);
-    seams.me.meSwitchTenant.mockRejectedValue(
-      new ResponseError(new Response(null, { status: 403 })),
-    );
+  fnTest(
+    ["M01.F03.I02"],
+    "switchTenant 失败 → 保旧会话（token/currentTenantId 原样）+ error 可重试",
+    async () => {
+      const hook = mount();
+      await loginOk(hook);
+      seams.me.meSwitchTenant.mockRejectedValue(
+        new ResponseError(new Response(null, { status: 403 })),
+      );
 
-    const out = await call(() => hook.current!.switchTenant("t2"));
-    expect(out.ok).toBe(false);
-    expect(hook.current!.error).toBe("请求失败（HTTP 403）");
-    expect(tokenStore.getToken()).toBe("tok");
-    expect(hook.current!.currentTenantId).toBe("t1");
-    expect(hook.current!.phase).toBe("ready");
-  });
+      const out = await call(() => hook.current!.switchTenant("t2"));
+      expect(out.ok).toBe(false);
+      expect(hook.current!.error).toBe("请求失败（HTTP 403）");
+      expect(tokenStore.getToken()).toBe("tok");
+      expect(hook.current!.currentTenantId).toBe("t1");
+      expect(hook.current!.phase).toBe("ready");
+    },
+  );
 
-  fnTest(["M01.F03.I01"], "listTenants 成功真值覆盖；失败返 undefined（与空数组区分）+ 旧列表保留", async () => {
-    const hook = mount();
-    await loginOk(hook);
+  fnTest(
+    ["M01.F03.I01"],
+    "listTenants 成功真值覆盖；失败返 undefined（与空数组区分）+ 旧列表保留",
+    async () => {
+      const hook = mount();
+      await loginOk(hook);
 
-    seams.me.meListMyTenants.mockResolvedValue([membershipT2]);
-    const okOut = await call(() => hook.current!.listTenants());
-    expect(okOut.value).toEqual([membershipT2]);
-    expect(hook.current!.tenants).toEqual([membershipT2]);
+      seams.me.meListMyTenants.mockResolvedValue([membershipT2]);
+      const okOut = await call(() => hook.current!.listTenants());
+      expect(okOut.value).toEqual([membershipT2]);
+      expect(hook.current!.tenants).toEqual([membershipT2]);
 
-    seams.me.meListMyTenants.mockRejectedValue(
-      new ResponseError(new Response(null, { status: 500 })),
-    );
-    const failOut = await call(() => hook.current!.listTenants());
-    expect(failOut.value).toBeUndefined();
-    expect(hook.current!.tenants).toEqual([membershipT2]);
-    expect(hook.current!.error).toBe("请求失败（HTTP 500）");
-  });
+      seams.me.meListMyTenants.mockRejectedValue(
+        new ResponseError(new Response(null, { status: 500 })),
+      );
+      const failOut = await call(() => hook.current!.listTenants());
+      expect(failOut.value).toBeUndefined();
+      expect(hook.current!.tenants).toEqual([membershipT2]);
+      expect(hook.current!.error).toBe("请求失败（HTTP 500）");
+    },
+  );
 
-  fnTest(["M01.F04.I06"], "logout 未登录 → 不发服务端请求（守卫）+ 本地清理强制回 needsLogin", async () => {
-    const hook = mount();
-    const out = await call(() => hook.current!.logout());
-    expect(out.ok).toBe(true);
-    expect(seams.auth.sessionsLogout).not.toHaveBeenCalled();
-    expect(hook.current!.phase).toBe("needsLogin");
-    expect(tokenStore.getToken()).toBeUndefined();
-    expect(hook.current!.user).toBeUndefined();
-    expect(hook.current!.tenants).toEqual([]);
-  });
+  fnTest(
+    ["M01.F04.I06"],
+    "logout 未登录 → 不发服务端请求（守卫）+ 本地清理强制回 needsLogin",
+    async () => {
+      const hook = mount();
+      const out = await call(() => hook.current!.logout());
+      expect(out.ok).toBe(true);
+      expect(seams.auth.sessionsLogout).not.toHaveBeenCalled();
+      expect(hook.current!.phase).toBe("needsLogin");
+      expect(tokenStore.getToken()).toBeUndefined();
+      expect(hook.current!.user).toBeUndefined();
+      expect(hook.current!.tenants).toEqual([]);
+    },
+  );
 
-  fnTest(["M01.F04.I06"], "logout 已登录 → 先服务端（尽力而为）再本地清理（服务端炸不拦清理）", async () => {
-    const hook = mount();
-    await loginOk(hook);
-    tokenStore.setToken("tok");
-    seams.auth.sessionsLogout.mockRejectedValue(new Error("network down"));
+  fnTest(
+    ["M01.F04.I06"],
+    "logout 已登录 → 先服务端（尽力而为）再本地清理（服务端炸不拦清理）",
+    async () => {
+      const hook = mount();
+      await loginOk(hook);
+      tokenStore.setToken("tok");
+      seams.auth.sessionsLogout.mockRejectedValue(new Error("network down"));
 
-    const out = await call(() => hook.current!.logout());
-    expect(out.ok).toBe(true);
-    expect(seams.auth.sessionsLogout).toHaveBeenCalledTimes(1);
-    expect(hook.current!.phase).toBe("needsLogin");
-    expect(tokenStore.getToken()).toBeUndefined();
-    expect(storage.has("corekit.session")).toBe(false);
-    expect(hook.current!.user).toBeUndefined();
-  });
+      const out = await call(() => hook.current!.logout());
+      expect(out.ok).toBe(true);
+      expect(seams.auth.sessionsLogout).toHaveBeenCalledTimes(1);
+      expect(hook.current!.phase).toBe("needsLogin");
+      expect(tokenStore.getToken()).toBeUndefined();
+      expect(storage.has("corekit.session")).toBe(false);
+      expect(hook.current!.user).toBeUndefined();
+    },
+  );
 });
