@@ -10,3 +10,6 @@ coverage/
 /.env.*
 !/.env.example
 .swc/
+
+# DevTools 机器本地配置（工具自动写，不入 git）
+project.private.config.json
