@@ -14,4 +14,19 @@ describe("api-client bootstrap", () => {
     bootstrap("http://localhost:5104", "tok");
     expect(new Headers(currentConfig()?.headers).get("Authorization")).toBe("Bearer tok");
   });
+
+  it("bootstrap(baseURL) 单参：无 Authorization 头（D5 仅 baseURL 路径，login 前发请求）", () => {
+    bootstrap("http://localhost:5104");
+    expect(new Headers(currentConfig()?.headers).get("Authorization")).toBeNull();
+    expect(currentConfig()?.basePath).toBe("http://localhost:5104");
+  });
+
+  it("bootstrap(baseURL, undefined) 显式缺席：无 Authorization 头（token 可选）", () => {
+    bootstrap("http://localhost:5104", undefined);
+    expect(new Headers(currentConfig()?.headers).get("Authorization")).toBeNull();
+  });
+
+  it("bootstrap(baseURL, '  ') 已登录口径空 token 仍然 throw（既有 fail-fast 语义保留）", () => {
+    expect(() => bootstrap("http://localhost:5104", "   ")).toThrow(/token/i);
+  });
 });
