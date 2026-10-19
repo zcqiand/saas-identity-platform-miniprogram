@@ -29,8 +29,20 @@ export async function taroFetch(url: string, init: RequestInit): Promise<Respons
     data,
   });
 
-  const body = typeof res.data === "string" ? res.data : JSON.stringify(res.data);
+  // 204/205/304 是 null-body 状态：Response 构造器带 body 即 TypeError（生成物
+  // VoidApiResponse 路径，如 sessionsLogout 的 204），必须传 null
+  const body = isNullBodyStatus(res.statusCode)
+    ? null
+    : typeof res.data === "string"
+      ? res.data
+      : JSON.stringify(res.data);
   return new Response(body, { status: res.statusCode, headers: res.header ?? {} });
+}
+
+const NULL_BODY_STATUSES = new Set([204, 205, 304]);
+
+function isNullBodyStatus(status: number): boolean {
+  return NULL_BODY_STATUSES.has(status);
 }
 
 function normalizeHeaders(
