@@ -109,7 +109,7 @@ describe("SessionStore（状态机随 swift SessionStore）", () => {
     expect(store.snapshot()?.currentTenantId).toBe("t1");
   });
 
-  it("重生：同一 fake storage 重 init 断言复原（user/tenants/currentTenantId/expiresAt）", () => {
+  it("重生：同一 fake storage 重 init 断言复原（user/tenants/currentTenantId/expiresAt，日期 revive 钉死）", () => {
     const tokenStore = createInMemoryTokenStore();
     const first = new SessionStore({
       tokenStore,
@@ -117,6 +117,7 @@ describe("SessionStore（状态机随 swift SessionStore）", () => {
       clientId: "saas-console",
     });
     first.adoptLogin(loginRes());
+    first.adoptSwitch(switchRes());
     expect(first.phase).toBe("ready");
 
     // 同一 storage（tokenStore + Taro storage map）重建实例 = 冷启重生
@@ -128,7 +129,13 @@ describe("SessionStore（状态机随 swift SessionStore）", () => {
     expect(second.phase).toBe("ready");
     expect(second.snapshot()?.user.username).toBe("alice");
     expect(second.snapshot()?.tenants).toHaveLength(1);
-    expect(second.snapshot()?.currentTenantId).toBe("t1");
+    expect(second.snapshot()?.currentTenantId).toBe("t2");
+    // JSON 往返后日期字段必须 revive 回 Date——DATE_KEYS 摘除即此三条全红
+    expect(second.snapshot()?.user.createdAt).toEqual(new Date("2026-01-01T00:00:00Z"));
+    expect(second.snapshot()?.tenants[0]?.joinedAt).toEqual(
+      new Date("2026-01-01T00:00:00Z"),
+    );
+    expect(second.snapshot()?.expiresAt).toEqual(new Date("2026-02-01T00:00:00Z"));
   });
 
   it("apiBaseUrl thunk 抛错 → needsSetup（即便 token+快照在位，swift isConfigured false 口径）", () => {
