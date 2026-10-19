@@ -3,6 +3,9 @@ dist/
 coverage/
 .state/trace.json
 .state/gate.json
+.state/gate.partial.json
+.state/alignment.json
+.state/tree-change.json
 /.env
 /.env.*
 !/.env.example
