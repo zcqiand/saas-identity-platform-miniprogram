@@ -5,7 +5,7 @@
  * 不 mock 传输语义之外的东西）。React 18.3 act + react-dom/client 渲染探针，
  * jsdom 环境系 vitest 自带依赖，无新增依赖。
  */
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, vi } from "vitest";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -26,6 +26,7 @@ import type {
   UseAuthResult,
 } from "../../src/corekit/use-auth";
 import { useAuth } from "../../src/corekit/use-auth";
+import { fnTest } from "../fn";
 import { SessionStore } from "../../src/corekit/session-store";
 import { createInMemoryTokenStore, type TokenStore } from "../../src/corekit/token-store";
 import { ResponseError } from "../../src/generated/runtime";
@@ -171,7 +172,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     seams.auth.sessionsLogin.mockClear();
   }
 
-  it("login 成功 → phase ready + user/tenants 就位（请求体带 clientId，ADR-0019）", async () => {
+  fnTest(["M01.F04.I01"], "login 成功 → phase ready + user/tenants 就位（请求体带 clientId，ADR-0019）", async () => {
     seams.auth.sessionsLogin.mockResolvedValue(loginRes());
     const hook = mount();
     expect(hook.current!.phase).toBe("needsLogin");
@@ -189,7 +190,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(hook.current!.error).toBeUndefined();
   });
 
-  it("login 缺 clientId 前置炸（ADR-0019）：请求不发、store 未动、error 落文案", async () => {
+  fnTest(["M01.F04.I01"], "login 缺 clientId 前置炸（ADR-0019）：请求不发、store 未动、error 落文案", async () => {
     const hook = mount("");
     const out = await call(() => hook.current!.login("alice", "dev123456"));
     expect(out.ok).toBe(false);
@@ -200,7 +201,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(hook.current!.user).toBeUndefined();
   });
 
-  it("login 失败（401）→ phase needsLogin + error=「请求失败（HTTP 401）」+ store 未动", async () => {
+  fnTest(["M01.F04.I01"], "login 失败（401）→ phase needsLogin + error=「请求失败（HTTP 401）」+ store 未动", async () => {
     seams.auth.sessionsLogin.mockRejectedValue(
       new ResponseError(new Response(null, { status: 401 })),
     );
@@ -215,7 +216,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(hook.current!.tenants).toEqual([]);
   });
 
-  it("whoami 成功 → user.email 更新（D6：username 快照、email whoami）", async () => {
+  fnTest(["M01.F01.I01"], "whoami 成功 → user.email 更新（D6：username 快照、email whoami）", async () => {
     const hook = mount();
     await loginOk(hook);
     expect(hook.current!.user?.email).toBe("alice@login.example");
@@ -227,7 +228,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(hook.current!.user?.username).toBe("alice");
   });
 
-  it("whoami 失败 → user 保持 + error 落文案（不兜底清空）", async () => {
+  fnTest(["M01.F01.I01"], "whoami 失败 → user 保持 + error 落文案（不兜底清空）", async () => {
     const hook = mount();
     await loginOk(hook);
 
@@ -241,7 +242,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(hook.current!.phase).toBe("ready");
   });
 
-  it("switchTenant 成功 → 换发 token + currentTenantId 更新 + 重拉 whoami", async () => {
+  fnTest(["M01.F03.I02"], "switchTenant 成功 → 换发 token + currentTenantId 更新 + 重拉 whoami", async () => {
     const hook = mount();
     await loginOk(hook);
     seams.me.meSwitchTenant.mockResolvedValue(switchRes());
@@ -256,7 +257,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(seams.me.meWhoami).toHaveBeenCalledTimes(1);
   });
 
-  it("switchTenant 失败 → 保旧会话（token/currentTenantId 原样）+ error 可重试", async () => {
+  fnTest(["M01.F03.I02"], "switchTenant 失败 → 保旧会话（token/currentTenantId 原样）+ error 可重试", async () => {
     const hook = mount();
     await loginOk(hook);
     seams.me.meSwitchTenant.mockRejectedValue(
@@ -271,7 +272,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(hook.current!.phase).toBe("ready");
   });
 
-  it("listTenants 成功真值覆盖；失败返 undefined（与空数组区分）+ 旧列表保留", async () => {
+  fnTest(["M01.F03.I01"], "listTenants 成功真值覆盖；失败返 undefined（与空数组区分）+ 旧列表保留", async () => {
     const hook = mount();
     await loginOk(hook);
 
@@ -289,7 +290,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(hook.current!.error).toBe("请求失败（HTTP 500）");
   });
 
-  it("logout 未登录 → 不发服务端请求（守卫）+ 本地清理强制回 needsLogin", async () => {
+  fnTest(["M01.F04.I06"], "logout 未登录 → 不发服务端请求（守卫）+ 本地清理强制回 needsLogin", async () => {
     const hook = mount();
     const out = await call(() => hook.current!.logout());
     expect(out.ok).toBe(true);
@@ -300,7 +301,7 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
     expect(hook.current!.tenants).toEqual([]);
   });
 
-  it("logout 已登录 → 先服务端（尽力而为）再本地清理（服务端炸不拦清理）", async () => {
+  fnTest(["M01.F04.I06"], "logout 已登录 → 先服务端（尽力而为）再本地清理（服务端炸不拦清理）", async () => {
     const hook = mount();
     await loginOk(hook);
     tokenStore.setToken("tok");
