@@ -1,0 +1,173 @@
+.tenant-apps {
+  padding: 40px 24px;
+
+  .apps-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .apps-title {
+    font-size: 36px;
+    font-weight: 600;
+  }
+
+  .apps-new {
+    margin: 0;
+    min-width: 144px;
+    font-size: 26px;
+    line-height: 1.8;
+  }
+
+  .apps-empty {
+    display: block;
+    color: #888;
+    font-size: 26px;
+  }
+
+  .apps-row {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .apps-row-head {
+    display: flex;
+    align-items: center;
+  }
+
+  .apps-row-client {
+    font-size: 28px;
+  }
+
+  .apps-row-badge {
+    margin-left: 12px;
+    padding: 2px 10px;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    color: #666;
+    font-size: 20px;
+  }
+
+  .apps-row-badge-active {
+    color: #1a7f37;
+    border-color: #1a7f37;
+  }
+
+  .apps-row-meta {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+    font-size: 22px;
+  }
+
+  .apps-form-title {
+    display: block;
+    margin-bottom: 24px;
+    font-size: 32px;
+    font-weight: 600;
+  }
+
+  .apps-readonly {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f7f7f7;
+    border-radius: 8px;
+  }
+
+  .apps-readonly-row {
+    display: block;
+    padding: 4px 0;
+    color: #444;
+    font-size: 24px;
+  }
+
+  .apps-field-group {
+    margin-bottom: 8px;
+  }
+
+  .apps-field-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #666;
+    font-size: 22px;
+  }
+
+  .apps-picker-value {
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 26px;
+  }
+
+  .apps-field-group .apps-picker-value {
+    margin-bottom: 16px;
+  }
+
+  .apps-picker-clear {
+    display: inline-block;
+    margin-bottom: 16px;
+    margin-left: 16px;
+    color: #666;
+    font-size: 22px;
+    text-decoration: underline;
+  }
+
+  .apps-status {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .apps-status-label {
+    margin-right: 16px;
+    font-size: 26px;
+  }
+
+  .apps-status-value {
+    margin-left: 16px;
+    color: #666;
+    font-size: 24px;
+  }
+
+  .apps-section-title {
+    display: block;
+    margin: 24px 0 16px;
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  .apps-form-hint {
+    display: block;
+    margin-bottom: 8px;
+    color: #888;
+    font-size: 22px;
+  }
+
+  .apps-save {
+    margin-top: 16px;
+  }
+
+  .apps-danger {
+    margin-top: 16px;
+    color: #d93026;
+  }
+
+  .apps-cancel {
+    margin-top: 16px;
+  }
+
+  .apps-error {
+    display: block;
+    margin-top: 24px;
+    color: #d93026;
+    font-size: 24px;
+  }
+
+  .apps-footer {
+    display: block;
+    margin-top: 40px;
+    color: #888;
+    font-size: 22px;
+  }
+}

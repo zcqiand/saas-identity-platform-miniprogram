@@ -104,6 +104,17 @@ export default function Account() {
             <Text className="account-entry-arrow">›</Text>
           </View>
         ) : null}
+        {currentTenantId ? (
+          <View
+            className="account-entry"
+            onClick={() =>
+              Taro.navigateTo({ url: "/pages/tenant-applications/index" })
+            }
+          >
+            <Text className="account-entry-name">租户应用</Text>
+            <Text className="account-entry-arrow">›</Text>
+          </View>
+        ) : null}
       </View>
       {error ? <Text className="account-error">{error}</Text> : null}
       <Button className="account-logout" onClick={onLogout}>
