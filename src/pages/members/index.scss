@@ -1,0 +1,109 @@
+.members {
+  padding: 40px 24px;
+
+  .members-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .members-title {
+    font-size: 36px;
+    font-weight: 600;
+  }
+
+  .members-plus {
+    margin: 0;
+    min-width: 72px;
+    font-size: 32px;
+    line-height: 1.4;
+  }
+
+  .members-empty {
+    display: block;
+    color: #888;
+    font-size: 26px;
+  }
+
+  .members-row {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .members-row-name {
+    display: block;
+    font-size: 28px;
+  }
+
+  .members-row-meta {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+    font-size: 22px;
+  }
+
+  .members-form-title {
+    display: block;
+    margin-bottom: 24px;
+    font-size: 32px;
+    font-weight: 600;
+  }
+
+  .members-field {
+    margin-bottom: 24px;
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .members-form-hint {
+    display: block;
+    margin-bottom: 8px;
+    color: #888;
+    font-size: 22px;
+  }
+
+  .members-role {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .members-role-check {
+    margin-right: 16px;
+    font-size: 28px;
+  }
+
+  .members-role-name {
+    font-size: 28px;
+  }
+
+  .members-role-code {
+    margin-left: auto;
+    color: #666;
+    font-size: 22px;
+  }
+
+  .members-save {
+    margin-top: 16px;
+  }
+
+  .members-cancel {
+    margin-top: 16px;
+  }
+
+  .members-error {
+    display: block;
+    margin-top: 24px;
+    color: #d93026;
+    font-size: 24px;
+  }
+
+  .members-footer {
+    display: block;
+    margin-top: 40px;
+    color: #888;
+    font-size: 22px;
+  }
+}

@@ -7,9 +7,9 @@ import { CLIENT_ID } from "../../config/client";
 import { useAuth } from "../../corekit/use-auth";
 import "./index.scss";
 
-// 页面薄壳（T4 无测试义务）：swift AccountView 同构裁剪——成员角色入口未交付
-// （刀 4 再加），无租户名富化（D6，显示 tenantId）。平台管理区恒在（服务端
-// 403 才是门，进页无权则 tenants 页自身报错）。
+// 页面薄壳（T4 无测试义务）：swift AccountView 同构裁剪。无租户名富化（D6，
+// 显示 tenantId）。平台管理区恒在（服务端 403 才是门，进页无权则 tenants 页
+// 自身报错）；成员角色入口仅在有 currentTenantId 时渲染（成员接口按租户作用域）。
 export default function Account() {
   const {
     user,
@@ -86,6 +86,15 @@ export default function Account() {
           <Text className="account-entry-name">租户管理</Text>
           <Text className="account-entry-arrow">›</Text>
         </View>
+        {currentTenantId ? (
+          <View
+            className="account-entry"
+            onClick={() => Taro.navigateTo({ url: "/pages/members/index" })}
+          >
+            <Text className="account-entry-name">成员角色</Text>
+            <Text className="account-entry-arrow">›</Text>
+          </View>
+        ) : null}
       </View>
       {error ? <Text className="account-error">{error}</Text> : null}
       <Button className="account-logout" onClick={onLogout}>
