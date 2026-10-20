@@ -222,9 +222,54 @@ describe("useOAuth（授权码三步流，knife4 T2）", () => {
       expect(out.value).toBe(false);
       expect(hook.current!.error).toContain("疑似 CSRF");
       expect(hook.current!.code).toBeNull();
+      expect(hook.current!.state).toBeNull();
       expect(hook.current!.phase).toBe("failed");
       // 授权码已丢弃：后续 exchange 无码可换
       expect(seams.oauth.oAuthToken).not.toHaveBeenCalled();
+    },
+  );
+
+  fnTest(
+    ["M04.F03.I01"],
+    "authorize 失败清残留 code/state——先成功（ac-1）再来一次 state 不一致，code/state 回 null 且 exchangeCode 随后被拒「尚无授权码」",
+    async () => {
+      const { hook } = await authorized();
+      expect(hook.current!.code).toBe("ac-1");
+
+      seams.oauth.oAuthAuthorize.mockResolvedValue({
+        code: "ac-evil",
+        state: "tampered-state",
+      });
+      const out = await call(() => hook.current!.authorize());
+      expect(out.value).toBe(false);
+      // swift OAuthViewModel :71-74：失败路径显式置 nil，与「已丢弃授权码」同义
+      expect(hook.current!.code).toBeNull();
+      expect(hook.current!.state).toBeNull();
+
+      seams.oauth.oAuthToken.mockResolvedValue(tokenRes());
+      const ex = await call(() => hook.current!.exchangeCode());
+      expect(ex.value).toBe(false);
+      expect(hook.current!.error).toContain("尚无授权码");
+      expect(seams.oauth.oAuthToken).not.toHaveBeenCalled();
+    },
+  );
+
+  fnTest(
+    ["M04.F03.I01"],
+    "authorize 网络异常也清残留 code/state——先成功（ac-1）再来一次 seam reject，code/state 回 null",
+    async () => {
+      const { hook } = await authorized();
+      expect(hook.current!.code).toBe("ac-1");
+
+      seams.oauth.oAuthAuthorize.mockRejectedValue(
+        new ResponseError(new Response(null, { status: 503 })),
+      );
+      const out = await call(() => hook.current!.authorize());
+      expect(out.value).toBe(false);
+      // swift OAuthViewModel :82-85：异常路径同样置 nil
+      expect(hook.current!.code).toBeNull();
+      expect(hook.current!.state).toBeNull();
+      expect(hook.current!.error).toBe("请求失败（HTTP 503）");
     },
   );
 
@@ -325,6 +370,35 @@ describe("useOAuth（授权码三步流，knife4 T2）", () => {
   );
 
   // 工程设施测试，不挂业务功能 ID（fn.ts 纪律）
+  it("busy 期再入守卫——authorize 卡在 pending seam 时 exchangeCode 立即 false 且 seam 未被调（可控 resolve 收尾防悬挂）", async () => {
+    let resolveAuthorize!: (v: { code: string; state: string }) => void;
+    seams.oauth.oAuthAuthorize.mockImplementation(
+      () =>
+        new Promise<{ code: string; state: string }>((res) => {
+          resolveAuthorize = res;
+        }),
+    );
+    const { hook } = mount();
+
+    let authorizeOut: boolean | undefined;
+    let busyOut: boolean | undefined;
+    await act(async () => {
+      // authorize 同步段（busyRef=true + 发请求）先跑，卡在 pending promise
+      const pendingAuthorize = hook.current!.authorize();
+      busyOut = await hook.current!.exchangeCode();
+      // 收尾：echo resolve 放行卡住的 authorize，避免悬挂
+      const sent =
+        seams.oauth.oAuthAuthorize.mock.calls[0]![0].authorizeCodeRequest;
+      resolveAuthorize({ code: "ac-late", state: sent.state });
+      authorizeOut = await pendingAuthorize;
+    });
+
+    expect(busyOut).toBe(false);
+    expect(seams.oauth.oAuthToken).not.toHaveBeenCalled();
+    expect(authorizeOut).toBe(true);
+    expect(hook.current!.code).toBe("ac-late");
+  });
+
   it("无缝未注时 defaultSeams 走 currentConfig()，缺失 throw（照 use-admin-clients 形状 fail-fast）", async () => {
     const { hook } = renderUseOAuth("saas-console"); // 不注 seams
     const out = await call(() => hook.current!.authorize());

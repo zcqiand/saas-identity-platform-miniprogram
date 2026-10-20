@@ -114,7 +114,11 @@ export function useOAuth(
         },
       });
       if (res.state !== sent) {
-        // CSRF fail-fast：授权码丢弃，不发后续 token 请求
+        // CSRF fail-fast：授权码丢弃，不发后续 token 请求。残留 code/state 一并
+        // 清空（swift OAuthViewModel :71-74 失败路径显式置 nil），与「已丢弃授权
+        // 码」文案同义——否则旧码可被下一次 exchange 误用
+        setCode(null);
+        setState(null);
         setError("state 回传不一致（疑似 CSRF），已丢弃授权码");
         setPhase("failed");
         return false;
@@ -124,6 +128,9 @@ export function useOAuth(
       setPhase("idle");
       return true;
     } catch (e) {
+      // 异常路径同样清残留（swift :82-85 同款置 nil）：签发没成，旧码不留
+      setCode(null);
+      setState(null);
       setError(errorMessage(e));
       setPhase("failed");
       return false;
