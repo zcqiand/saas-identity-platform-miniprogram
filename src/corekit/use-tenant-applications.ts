@@ -20,7 +20,7 @@ import { sharedSessionStore } from "./use-auth";
  * - subscribe（I02）：POST 成功响应体 TenantApplication 原位追加，不重拉列表；
  *   未知 clientId 404 / 重复订阅 400 的红字如实呈现（errorMessage），不猜语义
  * - update（I03）：PATCH partial——undefined 参数不进请求体（expireTime 不传
- *   =不改，CT I76 实证）；成功响应体按 clientId 原位替换
+ *   =不改）；成功响应体按 clientId 原位替换
  * - remove（I04）：DELETE 204 → 本地按 clientId 移除；路径 clientId 是字符串
  *   寻址非 UUID（Review Focus 5），参数原样透传不做格式加工
  * - 动作统一 `phase: "idle" | "busy" | "failed"` 三态 + `error?: string`，
@@ -163,7 +163,7 @@ export function useTenantApplications(options?: UseTenantApplicationsOptions): {
   );
 
   // @impl M00.F05.I03 — 更新订阅（PATCH partial：undefined 字段不进请求体，
-  // expireTime 不传=不改，CT I76 实证；成功响应体按 clientId 原位替换）
+  // expireTime 不传=不改；成功响应体按 clientId 原位替换）
   const update = useCallback(
     async (clientId: string, status?: number, expireTime?: Date): Promise<boolean> => {
       const tenantId = tenantIdOf();
@@ -171,8 +171,11 @@ export function useTenantApplications(options?: UseTenantApplicationsOptions): {
         noTenantFail("无法更新应用订阅");
         return false;
       }
-      // 生成 TS 类型把 status 标 required，但 wire 契约接受缺省（CT I76）——
-      // 按 partial 构造后窄化：键缺席而非 undefined 占位，序列化与缝级测试都干净
+      // PATCH partial：status/expireTime undefined 不进请求体。status 省略的
+      // wire 可移植性未实证（springboot 生成 DTO status 带 @NotNull，无 status
+      // 的 PATCH 会 400；CT I76 只实证过 expireTime 省略）——页面接线约定始终
+      // 传当前 status，省略路径仅为 hook 能力。按 partial 构造后窄化：键缺席
+      // 而非 undefined 占位，序列化与缝级测试都干净
       const request = {} as UpdateTenantApplicationRequest;
       if (status !== undefined) request.status = status;
       if (expireTime !== undefined) request.expireTime = expireTime;

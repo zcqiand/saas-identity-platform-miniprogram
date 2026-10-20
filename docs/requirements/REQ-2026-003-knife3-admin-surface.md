@@ -87,7 +87,9 @@ T8 `src/corekit/use-tenant-applications.ts` 的 fnTest 锚点 M00.F05（I01-I04�
    （免批类：镜像登记）。
 2. **镜像口径**：叶子行从 shared BASE 复制、去掉 `.tsp` 行号锚、状态随本仓
    进度标「开发中」（仅前端交付，后端已在 shared 侧 GA）。路径 clientId 是
-   字符串寻址非 UUID；update 走 PATCH partial（undefined 不进体，CT I76 实证）。
+   字符串寻址非 UUID；update 走 PATCH partial（undefined 不进体；expireTime
+   省略有 CT I76 实证，status 省略 wire 未实证——springboot DTO @NotNull，
+   页面接线约定始终传 status）。
 3. **交付物**：`src/corekit/use-tenant-applications.ts`（swift 订阅应用面动作
    的 hook 化：load 列表、subscribe 原位追加、update partial 原位替换、remove
    本地移除）；测试 `tests/corekit/use-tenant-applications.test.ts`，fnTest 挂
