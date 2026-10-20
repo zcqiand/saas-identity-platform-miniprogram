@@ -175,9 +175,11 @@ export default function Menus() {
     const target = index + delta;
     if (index < 0 || target < 0 || target >= segment.length) return;
     const ids = segment.map((m) => m.id);
-    const swapped = ids[index];
-    ids[index] = ids[target];
-    ids[target] = swapped;
+    const current = ids[index];
+    const neighbor = ids[target];
+    if (current === undefined || neighbor === undefined) return;
+    ids[index] = neighbor;
+    ids[target] = current;
     void reorder(clientId, menu.parentId, ids);
   };
 
@@ -202,13 +204,15 @@ export default function Menus() {
 
   const submitCreate = async () => {
     if (mode.kind !== "create" || !clientId || busy || !canSubmitCreate) return;
+    const selectedType = TYPE_OPTIONS[newTypeIndex];
+    if (!selectedType) return;
     setSubmitting(true);
     const parsedSortOrder = Number.parseInt(newSortOrderText, 10);
     const ok = await create(clientId, {
       // 根 = 省键（照 swift 传 nil；服务端落零值 UUID）
       parentId: newParentKey === "" ? undefined : newParentKey,
       title: newTitle.trim(),
-      type: TYPE_OPTIONS[newTypeIndex].value,
+      type: selectedType.value,
       path: newPath.trim() ? newPath.trim() : undefined,
       sortOrder: Number.isNaN(parsedSortOrder) ? undefined : parsedSortOrder,
     });
@@ -323,7 +327,7 @@ export default function Menus() {
               onChange={(e) => setNewTypeIndex(Number(e.detail.value))}
             >
               <View className="menus-picker-value">
-                {TYPE_OPTIONS[newTypeIndex].label}
+                {TYPE_OPTIONS[newTypeIndex]?.label ?? "menu"}
               </View>
             </Picker>
           </View>
