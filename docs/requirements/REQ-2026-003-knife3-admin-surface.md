@@ -96,3 +96,27 @@ T8 `src/corekit/use-tenant-applications.ts` 的 fnTest 锚点 M00.F05（I01-I04�
    M00.F05.I01-I04。
 
 trace 锚点由 gate trace_cmd 产出，不手写。
+
+## 6. 刀3 T10 镜像登记⑤（2026-10-20，ADR-0042 mirror 免批通道）
+
+T10 `src/corekit/use-admin-clients.ts` 的 fnTest 锚点 M04.F01（I01-I06）与
+M04.F02（I01）在本仓树无登记，L5 会报悬空。本节记 T10 的 mirror 登记：
+
+1. **提案**：`.state/tree-change.json` mirror 提案 10 行变更（M04 模块行 +
+   M04.F01 父行 + I01-I06 六叶子 + M04.F02 父行 + I01 一叶子），`--report`
+   影响面全绿后 `--apply` 自查自批生效（免批类：镜像登记；令牌绑定 sha
+   49c785c748e893d4）。
+2. **镜像口径**：叶子行从 shared BASE 复制、去掉 `.tsp` 行号锚、状态随本仓
+   进度标「开发中」（仅前端交付，后端已在 shared 侧 GA）。本 hook 是
+   **platform-admin 面、非 tenant 作用域**（无 store/session 选项，与
+   use-members/use-roles/use-tenant-applications 的租户 fail-fast 不同形）；
+   status 口径 Int：1=启用 0=停用；create 的 grantTypes 由页面传入、hook 不兜底
+   （生成的 CreateOAuthClientRequest 必填键面即页面表单义务）；I03 密钥仅回
+   指纹不返明文，展示层不期待 secret 字段；I05 删除级联吊销全部 token。
+3. **交付物**：`src/corekit/use-admin-clients.ts`（swift 应用面动作的 hook 化：
+   load 全量不传分页、create 原位追加、update PATCH partial 原位替换、remove
+   本地移除、setStatus 原位替换、publicInfo 走 ClientsApi 匿名端点）；测试
+   `tests/corekit/use-admin-clients.test.ts`，fnTest 挂 M04.F01.I01-I06 +
+   M04.F02.I01。
+
+trace 锚点由 gate trace_cmd 产出，不手写。

@@ -30,6 +30,7 @@
 |---|---|---|---|
 | M00 | 租户管理 | tenant-admin 配置面（knife3 镜像登记：本刀已落 M00.F01-F05） | 开发中 |
 | M01 | 用户管理 | 当前用户视图 + 登录链（knife2 镜像登记，刀3 增 M01.F02） | 开发中 |
+| M04 | 应用管理 | 应用 / OAuth client 维度（knife3 镜像登记：本刀已落 M04.F01-F02） | 开发中 |
 
 ---
 
@@ -166,6 +167,43 @@
 | M01.F04.I01 | 密码登录 | 接口 | 前端+后端 | `/auth/login` 用户名+密码+clientId 换取 token 对；连续 5 次密码错返回 HTTP 423 Locked | 开发中 |
 | M01.F04.I03 | 密码登录 UI | 页面 | 仅前端 | 本仓登录页（刀2 T4 交付，先登记占开发中） | 开发中 |
 | M01.F04.I06 | 登出（本地清理 + 服务端尽力而为） | 接口 | 前端+后端 | `/auth/logout` Bearer 头；服务端尽力而为，本地清理强制 | 开发中 |
+
+---
+
+## M04 应用管理
+
+> 2026-10-20 刀3 T10（admin 面）：走 ADR-0042 mirror 免批通道按 shared BASE 镜像登记
+> M04.F01 应用维护六子项 + M04.F02 应用启用/停用一子项（use-admin-clients，
+> AdminClientsApi/ClientsApi；REQ-2026-003），状态随本仓进度标「开发中」。本仓仅
+> 前端交付；端点/DTO 只认 shared 契约生成物；测试锚点见 `.state/trace.json`。
+
+| 功能 ID | 功能名称 | 说明 | 状态 |
+|---|---|---|---|
+| M04.F01 | 应用维护 | 应用 CRUD + 公共元数据（旧 M04.F01 + 旧 M04.F05） | 开发中 |
+| M04.F02 | 应用启用/停用 | `status` 字段切换（旧 M04.F02） | 开发中 |
+
+### M04.F01 应用维护
+
+> op 落表：`oauth_client`（panorama §2.1）。应用是菜单承载 + OAuth client 二合一。
+> 端点只认 shared 生成物（AdminClientsApi / ClientsApi）。I03 密钥仅回指纹不返明文；
+> I05 删除级联吊销该 client 名下全部 access/refresh token；I06 公共端点匿名可读。
+
+| 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
+|---|---|---|---|---|---|
+| M04.F01.I01 | OAuth 应用列表 | 接口 | 前端+后端 | 【平台】平台 admin 列出全部 OAuth 应用（分页+过滤） | 开发中 |
+| M04.F01.I02 | 创建 OAuth 应用 | 接口 | 前端+后端 | 【平台】注册新 OAuth client（含 redirect_uri 白名单与密钥生成） | 开发中 |
+| M04.F01.I03 | OAuth 应用详情 | 接口 | 前端+后端 | 【平台】查看应用完整配置（密钥仅回指纹，不返明文） | 开发中 |
+| M04.F01.I04 | 更新 OAuth 应用 | 接口 | 前端+后端 | 【平台】修改名称/redirect_uri 白名单/允许的 scope 等 | 开发中 |
+| M04.F01.I05 | 删除 OAuth 应用 | 接口 | 前端+后端 | 【平台】移除应用并吊销该 client 名下所有 access/refresh token | 开发中 |
+| M04.F01.I06 | 公共 client 元数据 | 接口 | 前端+后端 | 公开端点匿名可读 clientId/name/logo（供登录页应用选择） | 开发中 |
+
+### M04.F02 应用启用/停用
+
+> status 口径是 Int：1=启用 0=停用；禁用后该 client 的所有 OAuth/token 端点立即拒绝。
+
+| 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
+|---|---|---|---|---|---|
+| M04.F02.I01 | 启用/停用应用 | 接口 | 前端+后端 | 【平台】切换 status 字段；禁用后该 client 的所有 OAuth/token 端点立即拒绝 | 开发中 |
 
 ---
 

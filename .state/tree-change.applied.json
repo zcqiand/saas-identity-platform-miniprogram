@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "approved": false,
+  "base_sha": "49c785c748e893d4",
+  "mirror": true,
+  "summary": "刀3 admin 面镜像登记⑤：按 shared BASE 登记本仓 M04 应用管理模块行 + M04.F01 应用维护父行 + I01-I06 六子项 + M04.F02 应用启用/停用父行 + I01 一子项（T10 use-admin-clients hook fnTest 引用），修复 L5 悬空",
+  "changes": [
+    {
+      "id": "M04",
+      "action": "新增",
+      "name": "应用管理",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F01",
+      "action": "新增",
+      "name": "应用维护",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F01.I01",
+      "action": "新增",
+      "name": "OAuth 应用列表",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F01.I02",
+      "action": "新增",
+      "name": "创建 OAuth 应用",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F01.I03",
+      "action": "新增",
+      "name": "OAuth 应用详情",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F01.I04",
+      "action": "新增",
+      "name": "更新 OAuth 应用",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F01.I05",
+      "action": "新增",
+      "name": "删除 OAuth 应用",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F01.I06",
+      "action": "新增",
+      "name": "公共 client 元数据",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F02",
+      "action": "新增",
+      "name": "应用启用/停用",
+      "reason": "REQ-2026-003"
+    },
+    {
+      "id": "M04.F02.I01",
+      "action": "新增",
+      "name": "启用/停用应用",
+      "reason": "REQ-2026-003"
+    }
+  ],
+  "sync_files": [
+    "docs/requirements/REQ-2026-003-knife3-admin-surface.md"
+  ],
+  "applied_at": "2026-10-20T21:31:09+0800"
+}
