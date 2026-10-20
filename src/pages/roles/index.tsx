@@ -2,7 +2,7 @@
 // 过滤 + 新建表单 + 详情面板：启用 Toggle + 编辑资料 + 菜单授权勾选 + 删除确认）。
 // 页面薄壳（T7 无测试义务）：只挂 useRoles 渲染表单，逻辑覆盖在 Task 6 hook 测试。
 // 删除/清空授权过 showModal 确认；Client 过滤在前端做（列表全量拉取，页脚有注）。
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Input, Picker, Switch, Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { CLIENT_ID } from "../../config/client";
@@ -48,6 +48,13 @@ export default function Roles() {
   const [editDescription, setEditDescription] = useState("");
   // 菜单授权勾选集合（grants 回显同步）
   const [selectedMenuIds, setSelectedMenuIds] = useState<string[]>([]);
+  // 授权面板就绪门：menuList/grants 是 hook 级单份共享态，切角色时上一 client 的
+  // 菜单在加载窗口期（及 loadGrants 失败后）不可信——loading 中隐藏授权区并禁
+  // 保存/清空，仅当本次 loadGrants 成功（grantsReady）才渲染勾选清单放行按钮，
+  // 防止把上一角色 client 的 menuIds 保存到当前角色（saveGrants 不带 clientId）
+  const [grantsLoading, setGrantsLoading] = useState(false);
+  const [grantsReady, setGrantsReady] = useState(false);
+  const grantsReqRef = useRef(0);
 
   useEffect(() => {
     // account/tenants/members 页 .task 同构：进页拉角色列表（失败文案已落 hook error 态）
@@ -84,9 +91,17 @@ export default function Roles() {
     setEditRoleName(role.roleName);
     setEditDescription(role.description ?? "");
     setSelectedMenuIds([]); // 等 grants 回显再同步，避免上一角色的勾选残留
+    setGrantsLoading(true);
+    setGrantsReady(false);
     setMode({ kind: "detail", roleId: role.id });
-    // 授权面板进详情即拉：grants（已授权回显）+ 该角色自身 client 的菜单清单
-    void loadGrants(role.id, role.clientId);
+    // 授权面板进详情即拉：grants（已授权回显）+ 该角色自身 client 的菜单清单。
+    // 过期回包丢弃（req 序号）：快速切角色时旧 loadGrants 的 resolve 不得解锁新面板
+    const req = ++grantsReqRef.current;
+    void loadGrants(role.id, role.clientId).then((ok) => {
+      if (grantsReqRef.current !== req) return;
+      setGrantsLoading(false);
+      setGrantsReady(ok);
+    });
   };
 
   const canSubmitCreate =
@@ -125,14 +140,14 @@ export default function Roles() {
   };
 
   const onSaveGrants = async () => {
-    if (mode.kind !== "detail" || submitting) return;
+    if (mode.kind !== "detail" || submitting || !grantsReady) return;
     setSubmitting(true);
     await saveGrants(mode.roleId, selectedMenuIds);
     setSubmitting(false);
   };
 
   const onClearGrants = async () => {
-    if (mode.kind !== "detail" || submitting) return;
+    if (mode.kind !== "detail" || submitting || !grantsReady) return;
     const res = await Taro.showModal({
       title: `清空角色授权：${detailRole?.roleCode ?? ""}？`,
       content: "清空后该角色失去所有菜单访问，可重新勾选保存恢复",
@@ -316,10 +331,12 @@ export default function Roles() {
           <Text className="roles-form-hint">roleCode 不可改（契约口径）</Text>
 
           <Text className="roles-section-title">菜单授权</Text>
-          {menuList.length === 0 ? (
-            <Text className="roles-empty">
-              {phase === "busy" ? "加载中…" : "该 client 无菜单可授"}
-            </Text>
+          {grantsLoading ? (
+            // 加载窗口期与失败后不渲染清单（menuList 可能还是上一角色 client 的）
+            <Text className="roles-empty">加载中…</Text>
+          ) : !grantsReady ? // loadGrants 失败：不渲染陈旧清单不放行按钮，失败文案走页尾红字
+          null : menuList.length === 0 ? (
+            <Text className="roles-empty">该 client 无菜单可授</Text>
           ) : (
             <View className="roles-menu-list">
               {menuList.map((menu) => {
@@ -338,23 +355,27 @@ export default function Roles() {
               })}
             </View>
           )}
-          <Text className="roles-form-hint">
-            勾选 = 授予该菜单；保存为全量替换（未勾选的会被移除）
-          </Text>
-          <Button
-            className="roles-save"
-            disabled={submitting}
-            onClick={() => void onSaveGrants()}
-          >
-            保存授权
-          </Button>
-          <Button
-            className="roles-danger"
-            disabled={submitting}
-            onClick={() => void onClearGrants()}
-          >
-            清空授权
-          </Button>
+          {grantsReady ? (
+            <>
+              <Text className="roles-form-hint">
+                勾选 = 授予该菜单；保存为全量替换（未勾选的会被移除）
+              </Text>
+              <Button
+                className="roles-save"
+                disabled={submitting}
+                onClick={() => void onSaveGrants()}
+              >
+                保存授权
+              </Button>
+              <Button
+                className="roles-danger"
+                disabled={submitting}
+                onClick={() => void onClearGrants()}
+              >
+                清空授权
+              </Button>
+            </>
+          ) : null}
 
           <Button
             className="roles-danger"
