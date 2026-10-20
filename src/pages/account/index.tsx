@@ -134,6 +134,13 @@ export default function Account() {
           <Text className="account-entry-name">应用维护</Text>
           <Text className="account-entry-arrow">›</Text>
         </View>
+        <View
+          className="account-entry"
+          onClick={() => Taro.navigateTo({ url: "/pages/menus/index" })}
+        >
+          <Text className="account-entry-name">菜单管理（client 维度树）</Text>
+          <Text className="account-entry-arrow">›</Text>
+        </View>
       </View>
       {error ? <Text className="account-error">{error}</Text> : null}
       <Button className="account-logout" onClick={onLogout}>

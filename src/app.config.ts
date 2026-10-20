@@ -9,6 +9,7 @@ export default defineAppConfig({
     "pages/tenant-applications/index",
     "pages/admin-clients/index",
     "pages/oauth/index",
+    "pages/menus/index",
   ],
   window: {
     backgroundTextStyle: "light",
