@@ -14,7 +14,7 @@
 // - 保存缝纪律（T4 评审盯防项）：父菜单变更唯一走 move；字段走 update 且
 //   请求体**绝不传 parentId**（生成物虽有该字段，页面层禁用）；一次保存
 //   两步并存时先 move 后 update，任一失败即停
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Button, Input, Picker, Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { SysMenuType } from "../../generated";
@@ -52,63 +52,65 @@ function MenuTreeRows(props: {
   onMove: (menu: SysMenu, delta: number) => void;
 }) {
   const { nodes, depth, busy, onOpen, onMove } = props;
+  // 深度优先（修复轮 1，I-2）：单层 map——每个 node 渲染行后紧接渲染该 node
+  // 的 children 递归块（同 map 体内），保证父子邻接（根 [A,B]、A 有子 A1 时
+  // 输出 A, A1, B，随 swift OutlineGroup）
   return (
     <>
       {nodes.map((node) => {
         const menu = node.menu;
         const isRoot = menu.parentId === MENU_ROOT_PARENT_ID;
         return (
-          <View key={menu.id} className="menus-row" style={{ paddingLeft: `${depth * 32}px` }}>
-            <View className="menus-row-main" onClick={() => onOpen(menu)}>
-              <View className="menus-row-text">
-                <Text className="menus-row-title">{menu.title}</Text>
-                <Text className="menus-row-meta">
-                  {menu.type} · {menu.path ?? "—"}
+          <Fragment key={menu.id}>
+            <View className="menus-row" style={{ paddingLeft: `${depth * 32}px` }}>
+              <View className="menus-row-main" onClick={() => onOpen(menu)}>
+                <View className="menus-row-text">
+                  <Text className="menus-row-title">{menu.title}</Text>
+                  <Text className="menus-row-meta">
+                    {menu.type} · {menu.path ?? "—"}
+                  </Text>
+                </View>
+                <Text className={menu.status === 1 ? "menus-badge menus-badge-on" : "menus-badge"}>
+                  {statusLabel(menu.status)}
                 </Text>
               </View>
-              <Text className={menu.status === 1 ? "menus-badge menus-badge-on" : "menus-badge"}>
-                {statusLabel(menu.status)}
-              </Text>
+              {isRoot ? null : (
+                <View className="menus-row-actions">
+                  <Button
+                    className="menus-move"
+                    disabled={busy}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMove(menu, -1);
+                    }}
+                  >
+                    上移
+                  </Button>
+                  <Button
+                    className="menus-move"
+                    disabled={busy}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onMove(menu, +1);
+                    }}
+                  >
+                    下移
+                  </Button>
+                </View>
+              )}
             </View>
-            {isRoot ? null : (
-              <View className="menus-row-actions">
-                <Button
-                  className="menus-move"
-                  disabled={busy}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMove(menu, -1);
-                  }}
-                >
-                  上移
-                </Button>
-                <Button
-                  className="menus-move"
-                  disabled={busy}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMove(menu, +1);
-                  }}
-                >
-                  下移
-                </Button>
-              </View>
+            {node.children.length === 0 ? null : (
+              <MenuTreeRows
+                nodes={node.children}
+                depth={depth + 1}
+                busy={busy}
+                onOpen={onOpen}
+                onMove={onMove}
+              />
             )}
-          </View>
+          </Fragment>
         );
       })}
-      {nodes.map((node) =>
-        node.children.length === 0 ? null : (
-          <MenuTreeRows
-            key={`${node.menu.id}-children`}
-            nodes={node.children}
-            depth={depth + 1}
-            busy={busy}
-            onOpen={onOpen}
-            onMove={onMove}
-          />
-        ),
-      )}
     </>
   );
 }
@@ -259,6 +261,7 @@ export default function Menus() {
 
       {mode.kind === "idle" ? (
         <>
+          <Text className="menus-section-header">菜单（client 维度）</Text>
           <View className="menus-picker-row">
             <Text className="menus-picker-label">Client</Text>
             <Picker
