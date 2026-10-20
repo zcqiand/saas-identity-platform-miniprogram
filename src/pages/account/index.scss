@@ -51,6 +51,23 @@
     font-size: 28px;
   }
 
+  .account-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .account-entry-name {
+    font-size: 26px;
+  }
+
+  .account-entry-arrow {
+    color: #999;
+    font-size: 28px;
+  }
+
   .account-error {
     display: block;
     margin-bottom: 24px;

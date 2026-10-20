@@ -1,0 +1,100 @@
+.tenants {
+  padding: 40px 24px;
+
+  .tenants-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .tenants-title {
+    font-size: 36px;
+    font-weight: 600;
+  }
+
+  .tenants-new {
+    margin: 0;
+    font-size: 26px;
+  }
+
+  .tenants-empty {
+    display: block;
+    color: #888;
+    font-size: 26px;
+  }
+
+  .tenants-row {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .tenants-row-name {
+    display: block;
+    font-size: 28px;
+  }
+
+  .tenants-row-meta {
+    display: block;
+    margin-top: 4px;
+    color: #666;
+    font-size: 22px;
+  }
+
+  .tenants-form-title {
+    display: block;
+    margin-bottom: 24px;
+    font-size: 32px;
+    font-weight: 600;
+  }
+
+  .tenants-field {
+    margin-bottom: 24px;
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .tenants-status {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .tenants-status-label {
+    margin-right: 16px;
+    font-size: 26px;
+  }
+
+  .tenants-status-value {
+    margin-left: 16px;
+    color: #666;
+    font-size: 24px;
+  }
+
+  .tenants-save {
+    margin-top: 16px;
+  }
+
+  .tenants-cancel {
+    margin-top: 16px;
+  }
+
+  .tenants-delete {
+    margin-top: 40px;
+    color: #d93026;
+  }
+
+  .tenants-error {
+    display: block;
+    margin-top: 24px;
+    color: #d93026;
+    font-size: 24px;
+  }
+
+  .tenants-footer {
+    display: block;
+    margin-top: 40px;
+    color: #888;
+    font-size: 22px;
+  }
+}
