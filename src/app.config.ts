@@ -5,6 +5,7 @@ export default defineAppConfig({
     "pages/account/index",
     "pages/tenants/index",
     "pages/members/index",
+    "pages/roles/index",
   ],
   window: {
     backgroundTextStyle: "light",

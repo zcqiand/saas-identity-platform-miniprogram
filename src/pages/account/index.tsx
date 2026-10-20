@@ -95,6 +95,15 @@ export default function Account() {
             <Text className="account-entry-arrow">›</Text>
           </View>
         ) : null}
+        {currentTenantId ? (
+          <View
+            className="account-entry"
+            onClick={() => Taro.navigateTo({ url: "/pages/roles/index" })}
+          >
+            <Text className="account-entry-name">角色管理</Text>
+            <Text className="account-entry-arrow">›</Text>
+          </View>
+        ) : null}
       </View>
       {error ? <Text className="account-error">{error}</Text> : null}
       <Button className="account-logout" onClick={onLogout}>
