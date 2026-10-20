@@ -1,13 +1,16 @@
 // @entry M04.F03 — OAuth 授权码流页（knife4 T3，swift OAuthView 同构）：三步
-// authorize → token（authorization_code）→ refresh（轮换）。页面薄壳（无测试
-// 义务）：只挂 useOAuth 渲染三卡片，逻辑覆盖在 Task 2 hook 测试；禁直调生成物。
+// authorize → token（authorization_code）→ refresh（轮换）。页面薄壳：只挂
+// useOAuth 渲染三卡片，逻辑覆盖在 Task 2 hook 测试，禁用语义钉在
+// tests/pages/oauth.test.ts（终审 I-1）；禁直调生成物。
 import { Button, Text, View } from "@tarojs/components";
 import { CLIENT_ID } from "../../config/client";
 import { useOAuth } from "../../corekit/use-oauth";
 import "./index.scss";
 
 // 平台适配：swift 的 Form/Section 三段纵向排；NavigationLink/sheet 不适用。
-// disabled 逻辑照 swift OAuthView：busy / 无 code / 无 refreshToken 各拦各卡。
+// disabled 逻辑照 swift OAuthView：第一步仅 busy（OAuthView.swift:37——授权码
+// 一次性，exchange 失败后 code 仍非 null，加码禁用即死端，终审 I-1）；无 code
+// / 无 refreshToken 各拦后两卡（:59/:74）。禁用语义钉在 tests/pages/oauth.test.ts。
 export default function Oauth() {
   const { phase, error, code, state, token, authorize, exchangeCode, refreshToken } =
     useOAuth(CLIENT_ID);
@@ -20,7 +23,7 @@ export default function Oauth() {
         <Text className="oauth-card-title">第一步 · authorize</Text>
         <Button
           className="oauth-btn"
-          disabled={busy || code !== null}
+          disabled={busy}
           onClick={() => {
             void authorize();
           }}
