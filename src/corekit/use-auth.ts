@@ -2,9 +2,9 @@ import { useCallback, useRef, useState } from "react";
 import type { CurrentUser, SysUser, TenantMembership } from "../generated";
 import { AuthApi } from "../generated/apis/AuthApi";
 import { MeApi } from "../generated/apis/MeApi";
-import { ResponseError } from "../generated/runtime";
 import { apiBaseUrl } from "../config/app-config";
 import { currentConfig } from "./api-client";
+import { errorMessage } from "./error-message";
 import type { SessionPhase, SessionSnapshot } from "./session-store";
 import { SessionStore } from "./session-store";
 import { createTaroTokenStore } from "./token-store";
@@ -16,8 +16,8 @@ import { createTaroTokenStore } from "./token-store";
  * （真值覆盖，失败返 undefined 与空数组区分）/ logout :133（服务端尽力而为 +
  * 本地清理强制，未登录守卫随 swift AccountView :31-35）。
  *
- * 错误文案映射随 swift message(of:) :141-146：ResponseError →
- * 「请求失败（HTTP <code>）」，其余 String(description)。失败落 error 态并
+ * 错误文案映射走 error-message.ts 的 errorMessage（swift message(of:) :141-146
+ * 同构）。失败落 error 态并
  * reject（login/whoami/switchTenant）；listTenants 契约返回 undefined 不 reject；
  * logout 永不 reject。401 拦截在桥层（taro-fetch setOnUnauthorized，D3），
  * 本层不感知 401，页面禁各自处理。
@@ -79,18 +79,6 @@ function defaultSeams(): AuthSeams {
     );
   }
   return { auth: new AuthApi(config), me: new MeApi(config) };
-}
-
-/** swift message(of:) :141-146 同构。 */
-function errorMessage(error: unknown): string {
-  if (error instanceof ResponseError) {
-    return `请求失败（HTTP ${error.response.status}）`;
-  }
-  // 诊断透传（T5 live 临时）：FetchError 包住原始 Taro.request 错误（cause.errMsg），
-  // String(cause) 只给泛化文案；模拟器定案后回退。
-  const cause = (error as { cause?: unknown }).cause;
-  const causeText = cause ? String(cause) : "";
-  return causeText ? `${String(error)} <- ${causeText}` : String(error);
 }
 
 interface SessionView {
