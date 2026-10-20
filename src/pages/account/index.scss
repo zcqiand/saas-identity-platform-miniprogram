@@ -51,6 +51,23 @@
     font-size: 28px;
   }
 
+  .account-menu-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .account-menu-title {
+    font-size: 26px;
+  }
+
+  .account-menu-meta {
+    color: #666;
+    font-size: 22px;
+  }
+
   .account-entry {
     display: flex;
     align-items: center;

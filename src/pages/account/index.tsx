@@ -1,11 +1,37 @@
 // @entry M01.F01.I01 — 「当前用户」区渲染入口（username 快照 / email whoami，D6）
 // @entry M01.F03.I01 — 租户成员列表入口（meListMyTenants 真值覆盖 + 点选切换）
-import { useEffect } from "react";
+// @entry M04.F04.I08 — 「我的菜单」只读区入口（useMyMenus 嵌套树直渲染，knife4 T6）
+import { Fragment, useEffect } from "react";
 import { Button, Text, View } from "@tarojs/components";
 import Taro from "@tarojs/taro";
 import { CLIENT_ID } from "../../config/client";
 import { useAuth } from "../../corekit/use-auth";
+import type { EffectiveMenuNode } from "../../corekit/use-my-menus";
+import { useMyMenus } from "../../corekit/use-my-menus";
 import "./index.scss";
+
+// 我的菜单只读树：直渲染 EffectiveMenuNode.children 嵌套（两套口径铁律：
+// 禁过 buildMenuTree——零值 UUID 根桶口径只适用于 admin 平铺列表），缩进
+// 层级照 T5 菜单页 `paddingLeft: depth * 32px` 样式最简复用（叶子 children
+// 空数组自然收口）
+function MyMenuRows(props: { nodes: EffectiveMenuNode[]; depth: number }) {
+  const { nodes, depth } = props;
+  return (
+    <>
+      {nodes.map((node) => (
+        <Fragment key={node.id}>
+          <View className="account-menu-row" style={{ paddingLeft: `${depth * 32}px` }}>
+            <Text className="account-menu-title">{node.title}</Text>
+            <Text className="account-menu-meta">{node.type}</Text>
+          </View>
+          {node.children.length === 0 ? null : (
+            <MyMenuRows nodes={node.children} depth={depth + 1} />
+          )}
+        </Fragment>
+      ))}
+    </>
+  );
+}
 
 // 页面薄壳（T4 无测试义务）：swift AccountView 同构裁剪。无租户名富化（D6，
 // 显示 tenantId）。平台管理区恒在（服务端 403 才是门，进页无权则 tenants 页
@@ -21,6 +47,12 @@ export default function Account() {
     switchTenant,
     logout,
   } = useAuth(CLIENT_ID);
+  const {
+    phase: myMenusPhase,
+    error: myMenusError,
+    nodes: myMenuNodes,
+    load: loadMyMenus,
+  } = useMyMenus();
 
   useEffect(() => {
     // swift .task 同构：进页拉 whoami + 成员关系真值覆盖（均尽力而为，不拦渲染）
@@ -29,6 +61,13 @@ export default function Account() {
     });
     void listTenants();
   }, [whoami, listTenants]);
+
+  const loggedIn = user !== undefined;
+  useEffect(() => {
+    // 登录后拉当前用户有效菜单（失败落 hook error 态只显红字，不拦页面其他区）
+    if (!loggedIn) return;
+    void loadMyMenus(CLIENT_ID);
+  }, [loggedIn, loadMyMenus]);
 
   const onSwitch = async (tenantId: string) => {
     if (tenantId === currentTenantId) return;
@@ -44,6 +83,9 @@ export default function Account() {
     await logout();
     await Taro.reLaunch({ url: "/pages/login/index" });
   };
+
+  // 当前用户有效菜单根层（响应体 key=clientId，load(CLIENT_ID) 后即此桶）
+  const myMenuRoots = myMenuNodes ? (myMenuNodes[CLIENT_ID] ?? []) : null;
 
   return (
     <View className="account">
@@ -77,6 +119,21 @@ export default function Account() {
           })
         )}
       </View>
+      {loggedIn ? (
+        <View className="account-section">
+          <Text className="account-section-title">我的菜单（当前用户有效菜单）</Text>
+          {myMenuRoots === null ? (
+            myMenusPhase === "busy" ? (
+              <Text className="account-empty">加载中…</Text>
+            ) : null
+          ) : myMenuRoots.length === 0 ? (
+            <Text className="account-empty">（空）</Text>
+          ) : (
+            <MyMenuRows nodes={myMenuRoots} depth={0} />
+          )}
+          {myMenusError ? <Text className="account-error">{myMenusError}</Text> : null}
+        </View>
+      ) : null}
       <View className="account-section">
         <Text className="account-section-title">OAuth</Text>
         <View
