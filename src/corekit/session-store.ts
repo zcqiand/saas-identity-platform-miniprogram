@@ -4,6 +4,7 @@ import type {
   SwitchTenantResponse,
   SysUser,
   TenantMembership,
+  TokenResponse,
 } from "../generated";
 import { bootstrap } from "./api-client";
 import type { TokenStore } from "./token-store";
@@ -133,6 +134,34 @@ export class SessionStore {
       : undefined;
     this.writeSnapshot();
     this.reBootstrap(response.accessToken);
+  }
+
+  /** OAuth token 端点响应入账（swift :176-206）：/oauth/token 双 grant（含
+   * refresh 轮换）换发的 TokenResponse 落缝——token 对 set-or-clear（随 adoptSwitch
+   * 既有形态）、快照 currentTenantId/expiresAt 更新、Bearer 重注。需 ready，
+   * 未登录或缺 accessToken = fail-fast 一个字节都不动。user/tenants 不变。 */
+  adoptOAuthToken(token: TokenResponse): void {
+    if (this._phase !== "ready") {
+      throw new Error("未登录，不能领 OAuth token（需 ready）");
+    }
+    if (!token.accessToken || !token.accessToken.trim()) {
+      throw new Error("OAuth 响应缺 access_token（fail-fast 保旧会话）");
+    }
+    this.tokenStore.setToken(token.accessToken);
+    if (token.refreshToken && token.refreshToken.trim()) {
+      this.tokenStore.setRefreshToken(token.refreshToken);
+    } else {
+      this.clearRefreshOnly();
+    }
+    this._snapshot = this._snapshot
+      ? {
+          ...this._snapshot,
+          currentTenantId: token.tenantId,
+          expiresAt: new Date(Date.now() + token.expiresIn * 1000),
+        }
+      : undefined;
+    this.writeSnapshot();
+    this.reBootstrap(token.accessToken);
   }
 
   /** 成员关系真值覆盖（swift refreshTenants :212-224）：meListMyTenants 刷新入账，

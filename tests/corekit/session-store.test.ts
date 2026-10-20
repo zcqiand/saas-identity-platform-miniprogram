@@ -14,11 +14,13 @@ vi.mock("@tarojs/taro", () => ({
 import { bootstrap, currentConfig } from "../../src/corekit/api-client";
 import { SessionStore, type SessionPhase } from "../../src/corekit/session-store";
 import { createInMemoryTokenStore, type TokenStore } from "../../src/corekit/token-store";
+import { fnTest } from "../fn";
 import type {
   LoginResponse,
   SwitchTenantResponse,
   SysUser,
   TenantMembership,
+  TokenResponse,
 } from "../../src/generated";
 
 const API_BASE = "http://localhost:5104";
@@ -265,5 +267,81 @@ describe("SessionStore（状态机随 swift SessionStore）", () => {
     const store = makeStore();
     expect(() => store.refreshTenants([membership])).toThrow(/未登录|ready/);
     expect(store.snapshot()).toBeUndefined();
+  });
+
+  describe("adoptOAuthToken（knife4 T1，镜像 swift SessionStore.swift:176-206）", () => {
+    function tokenRes(over: Partial<TokenResponse> = {}): TokenResponse {
+      return {
+        accessToken: "at2",
+        refreshToken: "rt2",
+        tokenType: "Bearer",
+        expiresIn: 600,
+        userId: "u1",
+        clientId: "saas-console",
+        tenantId: "t2",
+        ...over,
+      };
+    }
+
+    fnTest(
+      ["M04.F03.I02"],
+      "adoptOAuthToken 未登录（needsLogin）→ throw 未登录，store 不动",
+      () => {
+        const tokenStore = createInMemoryTokenStore();
+        const store = makeStore(tokenStore);
+        expect(() => store.adoptOAuthToken(tokenRes())).toThrow(/未登录/);
+        expect(tokenStore.getToken()).toBeUndefined();
+        expect(tokenStore.getRefreshToken()).toBeUndefined();
+        expect(store.phase).toBe("needsLogin");
+        expect(store.snapshot()).toBeUndefined();
+        expect(storage.has("corekit.session")).toBe(false);
+      },
+    );
+
+    fnTest(
+      ["M04.F03.I02"],
+      "adoptOAuthToken 轮换入账：token 对 + currentTenantId + expiresAt + Bearer 重注",
+      () => {
+        const tokenStore = createInMemoryTokenStore();
+        const store = makeStore(tokenStore);
+        store.adoptLogin(loginRes());
+        const before = Date.now();
+        store.adoptOAuthToken(
+          tokenRes({ accessToken: "at2", refreshToken: "rt2", expiresIn: 600, tenantId: "t2" }),
+        );
+        expect(tokenStore.getToken()).toBe("at2");
+        expect(tokenStore.getRefreshToken()).toBe("rt2");
+        expect(store.snapshot()?.currentTenantId).toBe("t2");
+        const expiresAt = store.snapshot()?.expiresAt?.getTime() ?? 0;
+        expect(Math.abs(expiresAt - (before + 600_000))).toBeLessThanOrEqual(5_000);
+        expect(store.phase).toBe("ready");
+        // reBootstrap 被调：fake http client 收到新 Bearer
+        expect(authHeader()).toBe("Bearer at2");
+      },
+    );
+
+    it("adoptOAuthToken 空 refreshToken → 只清不写（adoptSwitch 同款 set-or-clear）", () => {
+      const tokenStore = createInMemoryTokenStore();
+      const store = makeStore(tokenStore);
+      store.adoptLogin(loginRes());
+      tokenStore.setRefreshToken("rt-old");
+      store.adoptOAuthToken(tokenRes({ refreshToken: "" }));
+      expect(tokenStore.getToken()).toBe("at2");
+      expect(tokenStore.getRefreshToken()).toBeUndefined();
+    });
+
+    it("adoptOAuthToken accessToken 缺失 → throw 且保旧会话（fail-fast 一个字节都不动）", () => {
+      const tokenStore = createInMemoryTokenStore();
+      const store = makeStore(tokenStore);
+      store.adoptLogin(loginRes());
+      expect(() => store.adoptOAuthToken(tokenRes({ accessToken: "" }))).toThrow(
+        /access_token/,
+      );
+      expect(tokenStore.getToken()).toBe("tok");
+      expect(tokenStore.getRefreshToken()).toBe("ref");
+      expect(store.snapshot()?.currentTenantId).toBe("t1");
+      expect(store.phase).toBe("ready");
+      expect(authHeader()).toBe("Bearer tok");
+    });
   });
 });

@@ -1,73 +1,84 @@
 {
   "schema": 1,
-  "approved": false,
-  "base_sha": "49c785c748e893d4",
+  "approved": true,
   "mirror": true,
-  "summary": "刀3 admin 面镜像登记⑤：按 shared BASE 登记本仓 M04 应用管理模块行 + M04.F01 应用维护父行 + I01-I06 六子项 + M04.F02 应用启用/停用父行 + I01 一子项（T10 use-admin-clients hook fnTest 引用），修复 L5 悬空",
+  "base_sha": "e79b0c3119fa66bb",
+  "summary": "knife4 T1 镜像登记：shared BASE M04.F03 身份认证（I01-I02）+ M04.F04 菜单管理（I01-I08）进本仓树，状态随本仓进度标开发中（REQ-2026-004）",
   "changes": [
     {
-      "id": "M04",
+      "id": "M04.F03",
       "action": "新增",
-      "name": "应用管理",
-      "reason": "REQ-2026-003"
+      "name": "身份认证",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE M04.F03"
     },
     {
-      "id": "M04.F01",
+      "id": "M04.F03.I01",
       "action": "新增",
-      "name": "应用维护",
-      "reason": "REQ-2026-003"
+      "name": "授权码签发",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
     },
     {
-      "id": "M04.F01.I01",
+      "id": "M04.F03.I02",
       "action": "新增",
-      "name": "OAuth 应用列表",
-      "reason": "REQ-2026-003"
+      "name": "OIDC token 端点（双 grant）",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE；adoptOAuthToken fnTest 挂点"
     },
     {
-      "id": "M04.F01.I02",
+      "id": "M04.F04",
       "action": "新增",
-      "name": "创建 OAuth 应用",
-      "reason": "REQ-2026-003"
+      "name": "菜单管理",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE M04.F04"
     },
     {
-      "id": "M04.F01.I03",
+      "id": "M04.F04.I01",
       "action": "新增",
-      "name": "OAuth 应用详情",
-      "reason": "REQ-2026-003"
+      "name": "菜单列表",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
     },
     {
-      "id": "M04.F01.I04",
+      "id": "M04.F04.I02",
       "action": "新增",
-      "name": "更新 OAuth 应用",
-      "reason": "REQ-2026-003"
+      "name": "创建菜单",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
     },
     {
-      "id": "M04.F01.I05",
+      "id": "M04.F04.I03",
       "action": "新增",
-      "name": "删除 OAuth 应用",
-      "reason": "REQ-2026-003"
+      "name": "菜单详情",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
     },
     {
-      "id": "M04.F01.I06",
+      "id": "M04.F04.I04",
       "action": "新增",
-      "name": "公共 client 元数据",
-      "reason": "REQ-2026-003"
+      "name": "更新菜单",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
     },
     {
-      "id": "M04.F02",
+      "id": "M04.F04.I05",
       "action": "新增",
-      "name": "应用启用/停用",
-      "reason": "REQ-2026-003"
+      "name": "删除菜单",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
     },
     {
-      "id": "M04.F02.I01",
+      "id": "M04.F04.I06",
       "action": "新增",
-      "name": "启用/停用应用",
-      "reason": "REQ-2026-003"
+      "name": "同级排序",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
+    },
+    {
+      "id": "M04.F04.I07",
+      "action": "新增",
+      "name": "切换父级",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
+    },
+    {
+      "id": "M04.F04.I08",
+      "action": "新增",
+      "name": "当前用户有效菜单",
+      "reason": "REQ-2026-004 knife4 T1 镜像 shared BASE"
     }
   ],
   "sync_files": [
-    "docs/requirements/REQ-2026-003-knife3-admin-surface.md"
-  ],
-  "applied_at": "2026-10-20T21:31:09+0800"
+    "docs/requirements/REQ-2026-004-knife4-oauth-menus.md"
+  ]
 }

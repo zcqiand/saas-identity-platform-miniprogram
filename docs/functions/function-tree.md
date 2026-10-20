@@ -30,7 +30,7 @@
 |---|---|---|---|
 | M00 | 租户管理 | tenant-admin 配置面（knife3 镜像登记：本刀已落 M00.F01-F05） | 开发中 |
 | M01 | 用户管理 | 当前用户视图 + 登录链（knife2 镜像登记，刀3 增 M01.F02） | 开发中 |
-| M04 | 应用管理 | 应用 / OAuth client 维度（knife3 镜像登记：本刀已落 M04.F01-F02） | 开发中 |
+| M04 | 应用管理 | 应用 / OAuth client 维度（knife3 已落 F01-F02、knife4 进行中 F03-F04） | 开发中 |
 
 ---
 
@@ -176,11 +176,16 @@
 > M04.F01 应用维护六子项 + M04.F02 应用启用/停用一子项（use-admin-clients，
 > AdminClientsApi/ClientsApi；REQ-2026-003），状态随本仓进度标「开发中」。本仓仅
 > 前端交付；端点/DTO 只认 shared 契约生成物；测试锚点见 `.state/trace.json`。
+> 同日刀4 T1：镜像登记 M04.F03 身份认证（I01-I02）+ M04.F04 菜单管理（I01-I08）
+> （OAuthApi；REQ-2026-004），SessionStore.adoptOAuthToken 为 M04.F03.I02 token
+> 端点的消费面入账。
 
 | 功能 ID | 功能名称 | 说明 | 状态 |
 |---|---|---|---|
 | M04.F01 | 应用维护 | 应用 CRUD + 公共元数据（旧 M04.F01 + 旧 M04.F05） | 开发中 |
 | M04.F02 | 应用启用/停用 | `status` 字段切换（旧 M04.F02） | 开发中 |
+| M04.F03 | 身份认证 | OAuth authorize + token + refresh（旧 M04.F03.I07-I09） | 开发中 |
+| M04.F04 | 菜单管理 | 菜单 CRUD + 结构 + 当前用户菜单（旧 M08 + 旧 M09 渲染部分） | 开发中 |
 
 ### M04.F01 应用维护
 
@@ -204,6 +209,36 @@
 | 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
 |---|---|---|---|---|---|
 | M04.F02.I01 | 启用/停用应用 | 接口 | 前端+后端 | 【平台】切换 status 字段；禁用后该 client 的所有 OAuth/token 端点立即拒绝 | 开发中 |
+
+### M04.F03 身份认证
+
+> OAuth 2.0 authorization_code + refresh_token；session 强约束（shared 仓
+> REQ-2026-020 §路线 A + oauth-architecture.md）。
+> 旧 ID 备注：旧 M04.F03.I07-I09 重编号为 I01-I03（早期实验 I01-I03 与 canonical
+> 同号但不同内容，按时序保留 canonical）。
+> 端点只认 shared 生成物；I02 token 端点双 grant（authorization_code /
+> refresh_token），本仓 `SessionStore.adoptOAuthToken` 为其消费面入账（REQ-2026-004）。
+
+| 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
+|---|---|---|---|---|---|
+| M04.F03.I01 | 授权码签发 | 接口 | 前端+后端 | 校验 session+redirect_uri+scope 后签发一次性 authorization_code | 开发中 |
+| M04.F03.I02 | OIDC token 端点（双 grant） | 接口 | 前端+后端 | `/oauth/token` 接收 authorization_code / refresh_token 双 grant，返回 access_token（可同时轮换 refresh_token） | 开发中 |
+
+### M04.F04 菜单管理
+
+> 落表：`sys_menu` + `sys_role_menu`（panorama §2.1）。子段：菜单 CRUD（I01-I05）+ 菜单结构（I06-I07）+ 当前用户菜单渲染（I08）。端点只认 shared 生成物。
+> 角色菜单授权设置端点（`PUT/DELETE /tenants/{t}/roles/{r}/menus`）的 admin 入口在 **M00.F04**（I03-I04）。
+
+| 子项 ID | 名称 | 类型 | 交付 | 说明 | 状态 |
+|---|---|---|---|---|---|
+| M04.F04.I01 | 菜单列表 | 接口 | 前端+后端 | 查看应用下全部菜单（含层级结构） | 开发中 |
+| M04.F04.I02 | 创建菜单 | 接口 | 前端+后端 | 新建菜单项（含父子关系/icon/path/权限码） | 开发中 |
+| M04.F04.I03 | 菜单详情 | 接口 | 前端+后端 | 查看菜单完整字段 | 开发中 |
+| M04.F04.I04 | 更新菜单 | 接口 | 前端+后端 | 修改菜单名称/path/icon/权限码（不动父子结构） | 开发中 |
+| M04.F04.I05 | 删除菜单 | 接口 | 前端+后端 | 删除菜单并级联清理子菜单与角色菜单授权 | 开发中 |
+| M04.F04.I06 | 同级排序 | 接口 | 前端+后端 | 调整同级菜单的排序顺序 | 开发中 |
+| M04.F04.I07 | 切换父级 | 接口 | 前端+后端 | 把菜单移动到另一父级下 | 开发中 |
+| M04.F04.I08 | 当前用户有效菜单 | 查询 | 前端+后端 | 渲染当前用户在指定应用/租户下有权访问的菜单树（详见 shared 仓 me-menus.md） | 开发中 |
 
 ---
 
