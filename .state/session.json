@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-miniprogram",
-  "current_task": "knife 4（OAuth + 菜单）已收口（T7）：13 项全量对齐复核（M00.F01-F05 + M01.F01-F04 + M04.F01-F04，REQ-2026-004 §4，零契约级不一致，2 minor 记档）+ node 侧 live 探针七步 200 全过（login→authorize state 回传→exchangeCode 免 clientSecret→refresh 双轮换→menus load→菜单 CRUD 链 create/update/move/reorder/remove→me/menus 嵌套树，后端 5104 日志全 200 无 403/500，探针造数自清验毕即删）+ vitest 151/151 + gate exit 0（L5 66 条目引用完整）+ appid touristappid 未漂；knife4 commit 区间 5eb62f5..0ad48df",
+  "current_task": "knife 4 全关闭（终审后）：opus 终审 FINDINGS 1I/9m——唯一 Important「oauth 页授权按钮已签发禁用×授权码一次性=exchange 失败后永久死端」已修（df082a9：disabled={busy} 对齐 swift OAuthView:37，页面钉子真红→绿，vitest 154/154 + gate exit 0 + appid touristappid）；scoped 复审 ADDRESSED；11 minors 全缓办；knife4 commit 区间 5eb62f5..df082a9（11 commits）",
   "done": [
     "knife1 T1-T4（codegen + taroFetch/bootstrap 桥 + L4.5 weapp 构建门 + DevTools 装机验收）",
     "knife2 T1-T5（登录链全落地：token/session store + useAuth + 401 拦截 + Login/Account 页 + live 验收 + weapp 全局量垫层 weapp-globals-shim）",
@@ -15,7 +15,8 @@
     "knife4 T4 buildMenuTree 纯函数 + use-menus hook（六动作，fnTest 挂 I01/I02/I04-I07；I03 菜单详情平铺本地呈现无 fnTest 锚点，T4 设计即定）",
     "knife4 T5 菜单管理页 + Account 入口（修复轮 section header 补齐 + 树渲染深度优先 + noUncheckedIndexedAccess 三处类型守卫）",
     "knife4 T6 use-my-menus（I08 当前用户有效菜单，EffectiveMenuNode 嵌套树直渲染不过 buildMenuTree——两套口径铁律）+ Account 只读区",
-    "knife4 T7 收口：13 项全量对齐复核（REQ-2026-004 §4）+ live 探针七步 200 + vitest 151/151 + gate exit 0 + saas.md 家族档案注记"
+    "knife4 T7 收口：13 项全量对齐复核（REQ-2026-004 §4）+ live 探针七步 200 + vitest 151/151 + gate exit 0 + saas.md 家族档案注记",
+    "knife4 终审 + 修复收口：opus 全分支终审（Review Focus 五条全钉住，1I/9m）→ df082a9 修 oauth 按钮死端（swift parity 让计划文本让位）→ scoped 复审 ADDRESSED → 154/154 + gate exit 0"
   ],
   "next": "人末段模拟器一次验收（刀 3 五页 + 刀 4 两新页 oauth/menus + Account 只读区，dist 须带 .env 重 build）；之后发布刀（.env.production 基址 + 真 appid + 真机全局量复验）",
   "open_questions": [
@@ -32,5 +33,8 @@
     "不要对租户作用域页面任务跳过 Step 0 树镜像登记（@entry 引未登记 ID 即 L5 悬空；顺序 proposal→--apply→改树）",
     "不要让页面任务只跑 vitest+build 跳过 gate（T5 带病教训——noUncheckedIndexedAccess 红被漏过，修复轮补收）"
   ],
-  "last_gate_passed_at": "2026-10-20"
+  "deferred_minors": [
+    "knife4 终审+复审缓办 11 条（2026-10-21 终审在案）：① oauth 页无 scope/expiresAt/第三卡回显行（swift tokenRows 有）；② menus 页 load 失败后 picker 显示新 client 而 hook 数据留旧（标头失真无错写）；③ 未登录 throw 文案经 errorMessage 带 Error: 前缀差；④ refreshToken 取 hook 态而非 store；⑤ update/move 按响应 id 匹配替换（swift 按入参）；⑥ parseInt(1.5)=1 vs swift Int=nil 省键分叉；⑦ Picker ?? menu 显示兜底；⑧ Account 切租户不重拉 my-menus；⑨ 「领」vs「入账」措辞；⑩ oauth 页面测试靠渲染期 side-effect push 捕 Button props（并发渲染下脆）；⑪ 测试文件级可变 hookState 可读性"
+  ],
+  "last_gate_passed_at": "2026-10-21"
 }
