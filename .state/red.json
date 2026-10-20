@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-miniprogram",
-  "evidence_at": "2026-10-20T23:27:32+0800",
+  "evidence_at": "2026-10-21T01:27:32+0800",
   "levels": {
-    "L4": 1
+    "L3": 2
   },
   "note": "ADR-0044 红灯证据：red 期测试门失败自动落盘，供 phase.py --to green 核验"
 }
