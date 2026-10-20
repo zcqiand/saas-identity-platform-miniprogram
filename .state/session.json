@@ -1,24 +1,36 @@
 {
   "schema": 1,
   "project": "saas-identity-platform-miniprogram",
-  "current_task": "knife 2（登录链）已收口：corekit token/session store + useAuth + 401 拦截 + Login/Account 页 + live 验收通过",
+  "current_task": "knife 4（OAuth + 菜单）已收口（T7）：13 项全量对齐复核（M00.F01-F05 + M01.F01-F04 + M04.F01-F04，REQ-2026-004 §4，零契约级不一致，2 minor 记档）+ node 侧 live 探针七步 200 全过（login→authorize state 回传→exchangeCode 免 clientSecret→refresh 双轮换→menus load→菜单 CRUD 链 create/update/move/reorder/remove→me/menus 嵌套树，后端 5104 日志全 200 无 403/500，探针造数自清验毕即删）+ vitest 151/151 + gate exit 0（L5 66 条目引用完整）+ appid touristappid 未漂；knife4 commit 区间 5eb62f5..0ad48df",
   "done": [
     "knife1 T1-T4（codegen + taroFetch/bootstrap 桥 + L4.5 weapp 构建门 + DevTools 装机验收）",
-    "knife2 T1 bootstrap/token/session store（vitest 29/29）",
-    "knife2 T2 useAuth + 401 拦截（vitest 44/44）",
-    "knife2 T3 功能树 mirror + trace 挂 ID（5/6，I03 留 T4 已补）",
-    "knife2 T4 Login/Account/Index 页接线 + I03 @entry 锚（六项全锚）",
-    "knife2 T5 live 验收通过：node 侧真链路全绿（临时 spec，验后即删，归档 workspace）+ 模拟器五步人工通过（登录 alice→Account 渲染→切租户 ✓ 翻转→登出回登录页）；后端请求日志铁证（login/whoami/tenants/switch 全 200）",
-    "knife2 定案并修复：weapp appservice 无 Headers/Response/URLSearchParams 全局量（DevTools 2.02 实测），桥/生成 runtime 请求发出前即崩（ReferenceError: Headers is not defined）——垫层 src/corekit/weapp-globals-shim.ts 只补缺失（385e410），原「真机刀才决」的全局量 shim 提前落地；use-auth errorMessage 附带 cause 透传（<- 后缀）转正并有钉子测试"
+    "knife2 T1-T5（登录链全落地：token/session store + useAuth + 401 拦截 + Login/Account 页 + live 验收 + weapp 全局量垫层 weapp-globals-shim）",
+    "knife3 T1 errorMessage 泛化（ResponseError→HTTP status；cause→<- 透传），use-auth 收编",
+    "knife3 T2-T11 五 hook + 五页 admin 面（vitest 114/114，逐任务 sonnet 评审清零；T7 修复轮 grantsLoading 守卫、T8 修复轮 status 省略引用拨正）",
+    "knife3 T12 whoami 吸收 currentTenantId + bootstrap catch console.warn 落因（knife2 minors 清账）",
+    "knife3 T13 trace 32/32 活 ID（I07/废弃 I01 不在）+ gate exit 0 + node 侧 live 探针（login→tenants→members→roles→applications→admin-clients，后端 5104 日志全 200 无 403，探针验后即删）+ opus 终审 0C/0I/5M",
+    "knife4 T1 adoptOAuthToken（M04.F03.I02）+ M04.F03/F04 树镜像登记（REQ-2026-004）",
+    "knife4 T2 use-oauth hook（authorize/exchangeCode/refreshToken + CSRF state 校验 + 失败清残留 + busy 再入守卫）",
+    "knife4 T3 OAuth 授权码页（三步流）+ Account 入口",
+    "knife4 T4 buildMenuTree 纯函数 + use-menus hook（六动作，fnTest 挂 I01/I02/I04-I07；I03 菜单详情平铺本地呈现无 fnTest 锚点，T4 设计即定）",
+    "knife4 T5 菜单管理页 + Account 入口（修复轮 section header 补齐 + 树渲染深度优先 + noUncheckedIndexedAccess 三处类型守卫）",
+    "knife4 T6 use-my-menus（I08 当前用户有效菜单，EffectiveMenuNode 嵌套树直渲染不过 buildMenuTree——两套口径铁律）+ Account 只读区",
+    "knife4 T7 收口：13 项全量对齐复核（REQ-2026-004 §4）+ live 探针七步 200 + vitest 151/151 + gate exit 0 + saas.md 家族档案注记"
   ],
-  "next": "刀 3 候选：currentTenantId 吸收 whoami 返回值（T4 遗留 minor）、bootstrapFromStorage catch 吞异常改进、发布刀（.env.production 基址 + 真 appid + 真机全局量复验）",
-  "open_questions": [],
+  "next": "人末段模拟器一次验收（刀 3 五页 + 刀 4 两新页 oauth/menus + Account 只读区，dist 须带 .env 重 build）；之后发布刀（.env.production 基址 + 真 appid + 真机全局量复验）",
+  "open_questions": [
+    "契约张力待人裁：shared 树 M00.F05.I03 写「修改状态或到期时间」而 TypeSpec UpdateTenantApplicationRequest.status required（springboot @NotNull 会 400 无 status PATCH）——本仓页面已约定永远传 status，无阻塞；若未来 UI 需「只改到期时间」须走 shared 修订",
+    "docs/adr 空目录未跟踪（git 不收空目录），L0 结构完整性依赖它——新克隆必红，待人裁（补 .gitkeep 或 L0 放宽）"
+  ],
   "dont": [
     "不要改 .harness/stack.json 让门变松",
     "不要给 skip 的测试挂功能 ID",
     "不要升 webpack（Taro 4.3.0 webpack5-runner 钉死 5.91.0）",
     "不要手改 src/generated/（垫层只能在 corekit 侧，runtime.ts:176 裸 instanceof URLSearchParams 靠垫层哑类兜住）",
-    "不要 npm run gen-shared（7.24.0 解析缺口未收，会产出对 committed 7.25.0 产物的真 diff）"
+    "不要 npm run gen-shared（7.24.0 解析缺口未收，会产出对 committed 7.25.0 产物的真 diff）",
+    "不要对 useTenantApplications.update 传 undefined status（wire 未实证，springboot @NotNull 会 400；页面约定永远传当前 status）",
+    "不要对租户作用域页面任务跳过 Step 0 树镜像登记（@entry 引未登记 ID 即 L5 悬空；顺序 proposal→--apply→改树）",
+    "不要让页面任务只跑 vitest+build 跳过 gate（T5 带病教训——noUncheckedIndexedAccess 红被漏过，修复轮补收）"
   ],
   "last_gate_passed_at": "2026-10-20"
 }

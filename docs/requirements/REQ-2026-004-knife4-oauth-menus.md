@@ -46,3 +46,41 @@ fnTest 锚点挂 **M04.F03.I02**（refresh 入账属 `/oauth/token` 端点消费
    签发本仓暂不消费、不挂 fnTest。
 
 trace 锚点由 gate trace_cmd（`npx vitest run`，TRACE_MAP=1）产出，不手写。
+
+## 4. 刀4 T7 13 项全量对齐复核表（2026-10-20 收口）
+
+> 范围：本仓已镜像登记的全部 13 个 F 项（M00.F01-F05 + M01.F01-F04 + M04.F01-F04），
+> 逐项对照 swift 参照实现（saas-identity-platform-swift `Sources/`，行号为
+> 2026-10-20 快照）与 miniprogram 交付面。miniprogram 侧测试锚点见 `.state/trace.json`
+>（trace_cmd 产出）；knife3 段（M00/M01/M04.F01-F02）按各任务评审结论抽验无回归。
+
+| ID | swift 对应（文件:行） | miniprogram 对应（文件） | 一致性结论 |
+|---|---|---|---|
+| M00.F01 租户维护 | APIGlue.swift:315；AdminTenantsViewModel.swift:54/70/86/103（load/create/update/delete）；TenantsAdminView.swift:11/73/159 | `src/corekit/use-admin-tenants.ts`（load/get/create/update/remove）+ `src/pages/tenants/index.tsx` | 一致：五动作同构，platform-admin 面无租户 fail-fast |
+| M00.F02 租户成员 | APIGlue.swift:91；MembersViewModel.swift:94-243（load/create/update/changeStatus/remove/invite/refresh/flatRow）；MembersView.swift:11-382 | `src/corekit/use-members.ts`（:94 flatRow、:153-343 七动作）+ `src/pages/members/index.tsx` | 一致：I07 接受邀请两仓均不交付（随 shared「规划」） |
+| M00.F03 租户角色 | APIGlue.swift:140；RolesViewModel.swift:90-185（load/create/update/setStatus/remove/refresh）；RolesAdminView.swift:11/117/340 | `src/corekit/use-roles.ts`（:141-290 六动作）+ `src/pages/roles/index.tsx` | 一致：status Int 1/0 口径、重名 roleCode 后端 500 红字呈现 |
+| M00.F04 角色权限 | APIGlue.swift:169；RolesViewModel.swift:205-239（loadGrants/saveGrants/clearGrants）；RolesAdminView.swift:227（RoleMenuGrantsSection） | `src/corekit/use-roles.ts`（:319 loadGrants/:353 saveGrants/:385 clearGrants） | 一致：I01 权限矩阵两仓均不交付（已废弃）；PUT 全量替换 + clear 后本地 menuIds=[] |
+| M00.F05 租户应用 | APIGlue.swift:195；TenantApplicationsViewModel.swift:65-123（load/subscribe/update/remove）；TenantApplicationsAdminView.swift:11/100/206 | `src/corekit/use-tenant-applications.ts`（:109-205 四动作）+ `src/pages/tenant-applications/index.tsx` | 一致：clientId 字符串寻址、update PATCH partial 永传 status（既有 open_question 保留） |
+| M01.F01 用户维护 | APIGlue.swift:33；AuthViewModel.swift:84（whoami）；AccountView.swift:12（@entry M01.F01.I01） | `src/corekit/use-auth.ts`（:112 whoami）+ `src/pages/account/index.tsx` | 一致 |
+| M01.F02 角色成员 | APIGlue.swift:66；MembersViewModel.swift:119（assignRoles）；MembersView.swift:123（RoleAssignView） | `src/corekit/use-members.ts`（:372 assignRoles） | 一致：roles PUT + getMember 回读（REQ-2026-009 Q2 口径） |
+| M01.F03 租户成员（切换） | APIGlue.swift:54；AuthViewModel.swift:102/119（switchTenant/listTenants）；SessionStore.swift:139（adoptSwitch）；AccountView.swift:127 | `src/corekit/use-auth.ts`（:152 switchTenant/:176 listTenants）+ `src/corekit/session-store.ts`（:115 adoptSwitch） | 一致 |
+| M01.F04 SSO 登录 | APIGlue.swift:33；AuthViewModel.swift:64/133（login/logout）；SessionStore.swift:104（adoptLogin）；LoginView.swift:11 | `src/corekit/use-auth.ts`（:128 login/:191 logout）+ `src/corekit/session-store.ts`（:89 adoptLogin）+ `src/corekit/token-store.ts` + `src/pages/login/index.tsx` | 一致：423 Locked 语义、登出本地清理强制 |
+| M04.F01 应用维护 | APIGlue.swift:274；AdminClientsViewModel.swift:60-108（load/create/update/deleteClient）；ApplicationsView.swift:12/79/207 | `src/corekit/use-admin-clients.ts`（:103-182 load/get/create/update/remove + :224 publicInfo）+ `src/pages/admin-clients/index.tsx` | 一致：platform-admin 面；I03 密钥仅指纹；I05 删除级联吊销 |
+| M04.F02 应用启用/停用 | AdminClientsViewModel.swift:125（setStatus）；ApplicationsView.swift（ClientDetailView 状态切换） | `src/corekit/use-admin-clients.ts`（:202 setStatus） | 一致：status Int 1/0 |
+| M04.F03 身份认证 | APIGlue.swift:228；OAuthViewModel.swift:63/93/113（authorize/exchangeCode/refresh）；SessionStore.swift:176（adoptOAuthToken）；OAuthView.swift:11 | `src/corekit/use-oauth.ts`（:98 authorize/:142 exchangeCode/:176 refreshToken）+ `src/corekit/session-store.ts`（:143 adoptOAuthToken）+ `src/pages/oauth/index.tsx` | 一致：state 自生成回传校验 CSRF、失败/异常路径清残留 code/state、busy 再入守卫（swift 靠 disabled 等价）、免 clientSecret、adoptOAuthToken set-or-clear + reBootstrap 重注 |
+| M04.F04 菜单管理 | APIGlue.swift:341；MenusViewModel.swift:72-175（load/create/update/move/reorder/deleteMenu）；MenuTree.swift:33（buildMenuTree）；MenusAdminView.swift:17/146/249 | `src/corekit/use-menus.ts`（:129-285 六动作）+ `src/corekit/menu-tree.ts`（:29 buildMenuTree）+ `src/pages/menus/index.tsx` + `src/corekit/use-my-menus.ts`（I08）+ `src/pages/account/index.tsx`（我的菜单只读区） | 一致（见分歧注①）：零值 UUID 根桶口径、(sortOrder,title) 双键排序、I08 见注② |
+
+**分歧与裁决**
+
+1. **（minor，非契约冲突）** 菜单管理页入口两仓同构（swift `MenusAdminView` 自
+  AccountView.swift:68 NavigationLink 进入；miniprogram 同为 Account 入口进
+  `pages/menus`）。页面形态差异（swift Form 分段 vs 小程序卡片/弹层）均为
+  minor，端点/DTO 全部来自 shared 生成物（MenusApi/MeApi），无
+  「本仓需要 ≠ shared」张力，不路由人裁。
+2. **（minor，交付面超集）** M04.F04.I08 当前用户有效菜单：swift 侧未消费
+  `/me/menus`（MenuTree.swift:6 明注「/me/menus 的 null 口径不在本切片」），
+  miniprogram 刀4 T6 主动交付只读区（use-my-menus 直渲染 EffectiveMenuNode
+  嵌套树，禁过 buildMenuTree——两套口径铁律）。端点来自 shared 生成物 MeApi，
+  属本仓对 shared 契约的合法额外消费，非分叉。
+3. 页面级文案差异（「换 token」vs「换 token」按钮措辞、卡片式 vs Form 分段）均为
+  minor，不阻塞；无 ADR-0029 级契约不一致。
