@@ -76,3 +76,21 @@ T6 `src/corekit/use-roles.ts` 的 fnTest 锚点 M00.F03（I01-I05）与 M00.F04�
    fnTest 挂 M00.F03.I01-I05 + M00.F04.I02-I04（I01 已废弃不挂）。
 
 trace 锚点由 gate trace_cmd 产出，不手写。
+
+## 5. 刀3 T8 镜像登记④（2026-10-20，ADR-0042 mirror 免批通道）
+
+T8 `src/corekit/use-tenant-applications.ts` 的 fnTest 锚点 M00.F05（I01-I04）
+在本仓树无登记，L5 会报悬空。本节记 T8 的 mirror 登记：
+
+1. **提案**：`.state/tree-change.json` mirror 提案 5 行变更（M00.F05 父行 +
+   I01-I04 四叶子），`--report` 影响面全绿后 `--apply` 自查自批生效
+   （免批类：镜像登记）。
+2. **镜像口径**：叶子行从 shared BASE 复制、去掉 `.tsp` 行号锚、状态随本仓
+   进度标「开发中」（仅前端交付，后端已在 shared 侧 GA）。路径 clientId 是
+   字符串寻址非 UUID；update 走 PATCH partial（undefined 不进体，CT I76 实证）。
+3. **交付物**：`src/corekit/use-tenant-applications.ts`（swift 订阅应用面动作
+   的 hook 化：load 列表、subscribe 原位追加、update partial 原位替换、remove
+   本地移除）；测试 `tests/corekit/use-tenant-applications.test.ts`，fnTest 挂
+   M00.F05.I01-I04。
+
+trace 锚点由 gate trace_cmd 产出，不手写。
