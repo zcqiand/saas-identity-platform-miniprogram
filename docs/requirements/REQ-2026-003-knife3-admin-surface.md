@@ -56,3 +56,23 @@ T4 `src/corekit/use-members.ts` 的 `@entry`/fnTest 锚点 M00.F02（I01-I06+I08
    fnTest 挂 M00.F02.I01-I06/I08 + M01.F02.I01（I03 经 refresh 动作）。
 
 trace 锚点由 gate trace_cmd（`npx vitest run`，TRACE_MAP=1）产出，不手写。
+
+## 4. 刀3 T6 镜像登记③（2026-10-20，ADR-0042 mirror 免批通道）
+
+T6 `src/corekit/use-roles.ts` 的 fnTest 锚点 M00.F03（I01-I05）与 M00.F04（I02-I04）
+在本仓树无登记，L5 会报悬空。本节记 T6 的 mirror 登记：
+
+1. **提案**：`.state/tree-change.json` mirror 提案 11 行变更（M00.F03 父行 +
+   I01-I05 五叶子 + M00.F04 父行 + I01-I04 四叶子），`--report` 影响面全绿后
+   `--apply` 自查自批生效（免批类：镜像登记；令牌绑定 sha 6b7aa0b30b3fe70a）。
+2. **镜像口径**：叶子行从 shared BASE 复制、去掉 `.tsp` 行号锚、状态随本仓
+   进度标「开发中」（仅前端交付，后端已在 shared 侧 GA/开发中）；M00.F04.I01
+   权限矩阵绑定随 shared 保持「已废弃」原样镜像（strikethrough 行不删号），
+   本仓不交付、不进 fnTest 锚点。
+3. **交付物**：`src/corekit/use-roles.ts`（swift 角色面动作的 hook 化：load
+   角色列表、create/update/setStatus/remove/refresh、loadGrants 并发 grants+
+   勾选清单、saveGrants PUT 全量替换+grants 原位更新、clearGrants DELETE 204
+   → 本地 menuIds=[] 不发二次 GET）；测试 `tests/corekit/use-roles.test.ts`，
+   fnTest 挂 M00.F03.I01-I05 + M00.F04.I02-I04（I01 已废弃不挂）。
+
+trace 锚点由 gate trace_cmd 产出，不手写。
