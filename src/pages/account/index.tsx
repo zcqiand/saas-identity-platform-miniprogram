@@ -78,6 +78,18 @@ export default function Account() {
         )}
       </View>
       <View className="account-section">
+        <Text className="account-section-title">OAuth</Text>
+        <View
+          className="account-entry"
+          onClick={() => Taro.navigateTo({ url: "/pages/oauth/index" })}
+        >
+          <Text className="account-entry-name">
+            OAuth 授权码（签发 / 换 token / 刷新）
+          </Text>
+          <Text className="account-entry-arrow">›</Text>
+        </View>
+      </View>
+      <View className="account-section">
         <Text className="account-section-title">平台管理</Text>
         <View
           className="account-entry"
