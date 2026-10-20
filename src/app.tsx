@@ -2,6 +2,7 @@ import { PropsWithChildren } from "react";
 import Taro from "@tarojs/taro";
 import "./app.scss";
 import { bootstrap, setOnUnauthorized } from "./corekit/api-client";
+import { errorMessage } from "./corekit/error-message";
 import { createTaroTokenStore } from "./corekit/token-store";
 import { sharedSessionStore } from "./corekit/use-auth";
 import { CLIENT_ID } from "./config/client";
@@ -18,9 +19,11 @@ import { apiBaseUrl } from "./config/app-config";
 function bootstrapFromStorage(): void {
   try {
     bootstrap(apiBaseUrl(), createTaroTokenStore().getToken());
-  } catch {
+  } catch (e) {
     // env 缺失不在 App 层炸（整页白屏）：交给 SessionStore needsSetup 派生 +
-    // 登录页 defaultSeams fail-fast 文案（T1 needsSetup 语义），非默认值兜底
+    // 登录页 defaultSeams fail-fast 文案（T1 needsSetup 语义），非默认值兜底。
+    // 刀3 遗留 minor 收口：console.warn 落原因再静默——白屏语义不变，不再无声吞。
+    console.warn("bootstrapFromStorage 失败（App 不炸，会话走 needsSetup 派生）：", errorMessage(e));
   }
 }
 bootstrapFromStorage();

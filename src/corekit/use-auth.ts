@@ -44,6 +44,7 @@ export interface UseAuthResult {
   /** 登录快照用户（username 口径）+ whoami 的 email 覆写（D6）。 */
   user?: SysUser;
   tenants: TenantMembership[];
+  /** 登录/切租户快照；whoami 成功且响应含租户上下文即覆盖（刀3 T12 吸收）。 */
   currentTenantId?: string;
   error?: string;
   login(username: string, password: string): Promise<void>;
@@ -98,6 +99,10 @@ export function useAuth(clientId: string, options?: UseAuthOptions): UseAuthResu
     snapshot: store.snapshot(),
   }));
   const [whoamiUser, setWhoamiUser] = useState<CurrentUser | undefined>(undefined);
+  // whoami 吸收（刀3 T12 遗留 minor）：whoami 成功且响应含当前租户上下文时，
+  // hook.currentTenantId 以 whoami 为真值覆盖登录/切租户快照（并存，成功即覆盖；
+  // 响应缺该字段则保持快照）。logout 随 whoamiUser 一并清。
+  const [whoamiTenantId, setWhoamiTenantId] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const sync = useCallback(() => {
@@ -108,6 +113,7 @@ export function useAuth(clientId: string, options?: UseAuthOptions): UseAuthResu
     try {
       const u = await seamsOf().me.meWhoami();
       setWhoamiUser(u);
+      setWhoamiTenantId(u.currentTenantId);
       setError(undefined);
     } catch (e) {
       // 失败 user 保持（swift :91-94 不兜底清空）
@@ -192,6 +198,7 @@ export function useAuth(clientId: string, options?: UseAuthOptions): UseAuthResu
       // 服务端吊销尽力而为（swift try? 同款），不拦本地清理
     }
     setWhoamiUser(undefined);
+    setWhoamiTenantId(undefined);
     store.adoptLogout(); // 本地清理强制
     setError(undefined);
     sync();
@@ -206,7 +213,7 @@ export function useAuth(clientId: string, options?: UseAuthOptions): UseAuthResu
     phase: view.phase,
     user,
     tenants: view.snapshot?.tenants ?? [],
-    currentTenantId: view.snapshot?.currentTenantId,
+    currentTenantId: whoamiTenantId ?? view.snapshot?.currentTenantId,
     error,
     login,
     whoami,

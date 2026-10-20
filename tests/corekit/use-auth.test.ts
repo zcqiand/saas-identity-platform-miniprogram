@@ -271,6 +271,23 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
 
   fnTest(
     ["M01.F01.I01"],
+    "whoami 成功 → currentTenantId 吸收 whoami 返回值（刀3 遗留 minor 收口）",
+    async () => {
+      const hook = mount();
+      await loginOk(hook);
+      // 基准：登录快照落 t1
+      expect(hook.current!.currentTenantId).toBe("t1");
+
+      // whoami 返回带不同租户上下文 → hook 以 whoami 为真值覆盖快照
+      seams.me.meWhoami.mockResolvedValue({ ...whoamiUser, currentTenantId: "t9" });
+      const out = await call(() => hook.current!.whoami());
+      expect(out.ok).toBe(true);
+      expect(hook.current!.currentTenantId).toBe("t9");
+    },
+  );
+
+  fnTest(
+    ["M01.F01.I01"],
     "whoami 失败 → user 保持 + error 落文案（不兜底清空）",
     async () => {
       const hook = mount();
@@ -294,7 +311,8 @@ describe("useAuth（动作面随 swift AuthViewModel）", () => {
       const hook = mount();
       await loginOk(hook);
       seams.me.meSwitchTenant.mockResolvedValue(switchRes());
-      seams.me.meWhoami.mockResolvedValue(whoamiUser);
+      // 切到 t2 后 whoami 反映新上下文（T12 吸收语义：whoami 成功即覆盖）
+      seams.me.meWhoami.mockResolvedValue({ ...whoamiUser, currentTenantId: "t2" });
 
       const out = await call(() => hook.current!.switchTenant("t2"));
       expect(out.ok).toBe(true);
