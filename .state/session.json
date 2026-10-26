@@ -19,9 +19,10 @@
     "knife4 终审 + 修复收口：opus 全分支终审（Review Focus 五条全钉住，1I/9m）→ df082a9 修 oauth 按钮死端（swift parity 让计划文本让位）→ scoped 复审 ADDRESSED → 154/154 + gate exit 0"
   ],
   "next": "人末段模拟器一次验收（刀 3 五页 + 刀 4 两新页 oauth/menus + Account 只读区，dist 须带 .env 重 build）；之后发布刀（.env.production 基址 + 真 appid + 真机全局量复验）",
-  "open_questions": [
-    "契约张力待人裁：shared 树 M00.F05.I03 写「修改状态或到期时间」而 TypeSpec UpdateTenantApplicationRequest.status required（springboot @NotNull 会 400 无 status PATCH）——本仓页面已约定永远传 status，无阻塞；若未来 UI 需「只改到期时间」须走 shared 修订",
-    "docs/adr 空目录未跟踪（git 不收空目录），L0 结构完整性依赖它——新克隆必红，待人裁（补 .gitkeep 或 L0 放宽）"
+  "open_questions": [],
+  "resolved_2026_10_26": [
+    "docs/adr 空目录致新克隆 L0 必红——已补 .gitkeep（人裁 2026-10-26，泛化全家族 24 仓 26 处同款疣同批清；saas-miniprogram 692fc8f 本仓落点）；L0 放宽路线否决（收紧不放宽）",
+    "M00.F05.I03「修改状态或到期时间」vs TypeSpec status required 契约张力——裁决落账收口（人裁 2026-10-26 核查）：实证 fastapi 无条件赋值 row.status=req.status、springboot @NotNull 400 无 status PATCH，本仓 hook 注释+dont 节已收窄页面约定（永远传当前 status），无 live 缺陷、树语义可服务（改到期时间=传当前 status）；契约改形 status→optional 属 shared 级专项（5+ 栈 regen + impl 改 + CT 同步），本批不动；若未来 UI 出现「不回显 status 只改到期」真需求，走 ADR-0029 三候选提案人批"
   ],
   "dont": [
     "不要改 .harness/stack.json 让门变松",
