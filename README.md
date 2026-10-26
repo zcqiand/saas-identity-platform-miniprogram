@@ -7,11 +7,14 @@ SaaS 身份平台小程序端（`saas-identity-platform-miniprogram`）——一
 ## 快速开始
 
 ```bash
-# 按 miniprogram 栈替换为实际命令
-npm install        # 安装依赖
-npm test           # 全量测试（无 Key / 无 Docker / 无网可跑）
-npm run dev        # 本地开发
-npm run build      # 生产构建
+# 前置：node + npm（依赖一律走 npmmirror）
+npm install --registry=https://registry.npmmirror.com --legacy-peer-deps           # 安装依赖（Taro 4.3 钉版）
+npx --no prettier --check src tests config        # L1 格式
+npx --no eslint src tests config                  # L2 静态
+npx --no tsc --noEmit                             # L3 类型
+npx --no vitest run                               # L4 测试
+npx --no taro build --type weapp                  # L4.5 weapp 构建门
+npm run dev:weapp                                 # 本地开发（watch 构建微信小程序）
 ```
 
 ## 功能特性
@@ -22,7 +25,8 @@ npm run build      # 生产构建
 
 | 技术 | 版本 |
 | :--- | :--- |
-| __STACK_DESC_LINE__ | |
+| Taro / React | 4.3.0 钉版 / 18.3.1（@tarojs/* 同版本收口） |
+| 工具链 | typescript ^5.7 / vitest ^4 / eslint ^9 / prettier ^3 / webpack 5.91.0 |
 
 > 依赖版本与 `version-lock.json` 的 `version_lock` 一致，不引入 lock 外的库。
 
