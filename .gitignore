@@ -13,3 +13,6 @@ coverage/
 
 # DevTools 机器本地配置（工具自动写，不入 git）
 project.private.config.json
+
+# 可再生件（正式区/临时区纪律：过程件进 _work/，_work 整体不入库；2026-10-24 人裁）
+_work/
