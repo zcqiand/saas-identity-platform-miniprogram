@@ -67,9 +67,9 @@ function makeSeams() {
 }
 type SeamsFake = ReturnType<typeof makeSeams>;
 
-function renderUseAdminClients(
-  options?: { seams?: AdminClientsSeams },
-): { current?: ReturnType<typeof useAdminClients> } {
+function renderUseAdminClients(options?: { seams?: AdminClientsSeams }): {
+  current?: ReturnType<typeof useAdminClients>;
+} {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -165,7 +165,11 @@ describe("useAdminClients（admin 应用面，knife3 T10）", () => {
     "create 成功 → 捕获体原样透传（grantTypes 等全部由页面传，hook 不兜底默认值）+ 新 client 原位追加且不再调 listClients",
     async () => {
       const { hook, items } = await loaded();
-      const created = client({ id: "c9-uuid", clientId: "new-app", clientName: "New App" });
+      const created = client({
+        id: "c9-uuid",
+        clientId: "new-app",
+        clientName: "New App",
+      });
       seams.clients.adminClientsCreateClient.mockResolvedValue(created);
 
       // grantTypes 明文传入：hook 不注入 authorization_code 默认（页面表单义务）
@@ -224,7 +228,9 @@ describe("useAdminClients（admin 应用面，knife3 T10）", () => {
 
       const out = await call(() => hook.current!.get("mini-app"));
       expect(out.value).toEqual(found);
-      expect(seams.clients.adminClientsGetClient).toHaveBeenCalledWith({ clientId: "mini-app" });
+      expect(seams.clients.adminClientsGetClient).toHaveBeenCalledWith({
+        clientId: "mini-app",
+      });
       // 契约口径：I03 密钥仅回指纹——生成的 OAuthClient 类型根本没有 secret
       // 字段（tsc 层面即证明），展示层无明文密钥可期待
     },
@@ -254,7 +260,11 @@ describe("useAdminClients（admin 应用面，knife3 T10）", () => {
         client({ id: "c2-uuid", clientId: "mini-app", clientName: "Mini App" }),
       ];
       const { hook } = await loaded(rows);
-      const updated = client({ clientId: "mini-app", clientName: "Mini App v2", status: 0 });
+      const updated = client({
+        clientId: "mini-app",
+        clientName: "Mini App v2",
+        status: 0,
+      });
       seams.clients.adminClientsUpdateClient.mockResolvedValue(updated);
 
       // partial：只传 clientName 一个键，hook 不补任何默认
@@ -270,24 +280,21 @@ describe("useAdminClients（admin 应用面，knife3 T10）", () => {
     },
   );
 
-  fnTest(
-    ["M04.F01.I04"],
-    "update 失败（500）→ 返回 false + 列表原样不动",
-    async () => {
-      const rows = [client(), client({ id: "c2-uuid", clientId: "mini-app", clientName: "Mini App" })];
-      const { hook } = await loaded(rows);
-      seams.clients.adminClientsUpdateClient.mockRejectedValue(
-        new ResponseError(new Response(null, { status: 500 })),
-      );
+  fnTest(["M04.F01.I04"], "update 失败（500）→ 返回 false + 列表原样不动", async () => {
+    const rows = [
+      client(),
+      client({ id: "c2-uuid", clientId: "mini-app", clientName: "Mini App" }),
+    ];
+    const { hook } = await loaded(rows);
+    seams.clients.adminClientsUpdateClient.mockRejectedValue(
+      new ResponseError(new Response(null, { status: 500 })),
+    );
 
-      const out = await call(() =>
-        hook.current!.update("mini-app", { clientName: "X" }),
-      );
-      expect(out.value).toBe(false);
-      expect(hook.current!.clients).toEqual(rows);
-      expect(hook.current!.phase).toBe("failed");
-    },
-  );
+    const out = await call(() => hook.current!.update("mini-app", { clientName: "X" }));
+    expect(out.value).toBe(false);
+    expect(hook.current!.clients).toEqual(rows);
+    expect(hook.current!.phase).toBe("failed");
+  });
 
   fnTest(
     ["M04.F01.I05"],
@@ -302,28 +309,26 @@ describe("useAdminClients（admin 应用面，knife3 T10）", () => {
 
       const out = await call(() => hook.current!.remove("web-app"));
       expect(out.value).toBe(true);
-      expect(seams.clients.adminClientsDeleteClient).toHaveBeenCalledWith({ clientId: "web-app" });
+      expect(seams.clients.adminClientsDeleteClient).toHaveBeenCalledWith({
+        clientId: "web-app",
+      });
       expect(hook.current!.clients).toEqual([rows[1]]);
       expect(hook.current!.phase).toBe("idle");
     },
   );
 
-  fnTest(
-    ["M04.F01.I05"],
-    "remove 失败（500）→ 返回 false + 列表原样不动",
-    async () => {
-      const rows = [client()];
-      const { hook } = await loaded(rows);
-      seams.clients.adminClientsDeleteClient.mockRejectedValue(
-        new ResponseError(new Response(null, { status: 500 })),
-      );
+  fnTest(["M04.F01.I05"], "remove 失败（500）→ 返回 false + 列表原样不动", async () => {
+    const rows = [client()];
+    const { hook } = await loaded(rows);
+    seams.clients.adminClientsDeleteClient.mockRejectedValue(
+      new ResponseError(new Response(null, { status: 500 })),
+    );
 
-      const out = await call(() => hook.current!.remove("web-app"));
-      expect(out.value).toBe(false);
-      expect(hook.current!.clients).toEqual(rows);
-      expect(hook.current!.phase).toBe("failed");
-    },
-  );
+    const out = await call(() => hook.current!.remove("web-app"));
+    expect(out.value).toBe(false);
+    expect(hook.current!.clients).toEqual(rows);
+    expect(hook.current!.phase).toBe("failed");
+  });
 
   fnTest(
     ["M04.F02.I01"],
@@ -379,7 +384,9 @@ describe("useAdminClients（admin 应用面，knife3 T10）", () => {
       const hook = mount();
       const out = await call(() => hook.current!.publicInfo("web-app"));
       expect(out.value).toEqual(info);
-      expect(seams.publicClients.clientsGetClient).toHaveBeenCalledWith({ clientId: "web-app" });
+      expect(seams.publicClients.clientsGetClient).toHaveBeenCalledWith({
+        clientId: "web-app",
+      });
     },
   );
 

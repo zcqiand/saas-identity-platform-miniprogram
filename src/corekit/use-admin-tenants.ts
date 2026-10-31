@@ -121,7 +121,9 @@ export function useAdminTenants(options?: UseAdminTenantsOptions): {
     const api = seamsOf().adminTenants;
     setPhase("busy");
     try {
-      const created = await api.adminTenantsCreateTenant({ createTenantRequest: request });
+      const created = await api.adminTenantsCreateTenant({
+        createTenantRequest: request,
+      });
       // 成功原位追加，不重拉 listTenants（随 swift）
       setTenants((prev) => [...prev, created]);
       setError(undefined);
@@ -140,7 +142,10 @@ export function useAdminTenants(options?: UseAdminTenantsOptions): {
       const api = seamsOf().adminTenants;
       setPhase("busy");
       try {
-        const updated = await api.adminTenantsUpdateTenant({ id, updateTenantRequest: request });
+        const updated = await api.adminTenantsUpdateTenant({
+          id,
+          updateTenantRequest: request,
+        });
         // 成功按 id 原位替换
         setTenants((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
         setError(undefined);

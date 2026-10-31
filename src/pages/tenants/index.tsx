@@ -12,14 +12,10 @@ import "./index.scss";
 const statusLabel = (status: Tenant["status"]): string =>
   status === "active" ? "启用" : "停用";
 
-type Mode =
-  | { kind: "idle" }
-  | { kind: "create" }
-  | { kind: "edit"; tenant: Tenant };
+type Mode = { kind: "idle" } | { kind: "create" } | { kind: "edit"; tenant: Tenant };
 
 export default function Tenants() {
-  const { tenants, phase, error, load, create, update, remove } =
-    useAdminTenants();
+  const { tenants, phase, error, load, create, update, remove } = useAdminTenants();
 
   const [mode, setMode] = useState<Mode>({ kind: "idle" });
   const [submitting, setSubmitting] = useState(false);
@@ -47,8 +43,7 @@ export default function Tenants() {
 
   const closeForm = () => setMode({ kind: "idle" });
 
-  const canSubmitCreate =
-    tenantKey.trim().length > 0 && name.trim().length > 0;
+  const canSubmitCreate = tenantKey.trim().length > 0 && name.trim().length > 0;
   const canSubmitEdit = name.trim().length > 0;
 
   const submitCreate = async () => {
@@ -90,28 +85,18 @@ export default function Tenants() {
     <View className="tenants">
       <View className="tenants-header">
         <Text className="tenants-title">租户管理</Text>
-        <Button
-          className="tenants-new"
-          disabled={submitting}
-          onClick={openCreate}
-        >
+        <Button className="tenants-new" disabled={submitting} onClick={openCreate}>
           新建租户
         </Button>
       </View>
 
       {mode.kind === "idle" ? (
         tenants.length === 0 ? (
-          <Text className="tenants-empty">
-            {phase === "busy" ? "加载中…" : "无租户"}
-          </Text>
+          <Text className="tenants-empty">{phase === "busy" ? "加载中…" : "无租户"}</Text>
         ) : (
           <View className="tenants-list">
             {tenants.map((t) => (
-              <View
-                key={t.id}
-                className="tenants-row"
-                onClick={() => openEdit(t)}
-              >
+              <View key={t.id} className="tenants-row" onClick={() => openEdit(t)}>
                 <Text className="tenants-row-name">{t.name}</Text>
                 <Text className="tenants-row-meta">
                   {t.tenantKey} · {statusLabel(t.status)}
@@ -155,8 +140,7 @@ export default function Tenants() {
           <Button
             className="tenants-save"
             disabled={
-              submitting ||
-              (mode.kind === "create" ? !canSubmitCreate : !canSubmitEdit)
+              submitting || (mode.kind === "create" ? !canSubmitCreate : !canSubmitEdit)
             }
             onClick={mode.kind === "create" ? submitCreate : submitUpdate}
           >
@@ -166,11 +150,7 @@ export default function Tenants() {
             取消
           </Button>
           {mode.kind === "edit" ? (
-            <Button
-              className="tenants-delete"
-              disabled={submitting}
-              onClick={onDelete}
-            >
+            <Button className="tenants-delete" disabled={submitting} onClick={onDelete}>
               删除租户
             </Button>
           ) : null}

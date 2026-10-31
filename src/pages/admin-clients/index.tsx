@@ -16,10 +16,7 @@ import "./index.scss";
 // status Int 映射（roles/tenant-applications 同口径）：1=启用 否则=停用
 const statusLabel = (status: number): string => (status === 1 ? "启用" : "停用");
 
-type Mode =
-  | { kind: "idle" }
-  | { kind: "create" }
-  | { kind: "detail"; clientId: string };
+type Mode = { kind: "idle" } | { kind: "create" } | { kind: "detail"; clientId: string };
 
 export default function AdminClients() {
   const { clients, phase, error, load, create, update, remove, setStatus } =
@@ -150,9 +147,7 @@ export default function AdminClients() {
 
       {mode.kind === "idle" ? (
         clients.length === 0 ? (
-          <Text className="ac-empty">
-            {phase === "busy" ? "加载中…" : "无应用"}
-          </Text>
+          <Text className="ac-empty">{phase === "busy" ? "加载中…" : "无应用"}</Text>
         ) : (
           <View className="ac-list">
             {clients.map((client) => (
@@ -251,9 +246,7 @@ export default function AdminClients() {
 
           <Text className="ac-section-title">详情（只读）</Text>
           <View className="ac-readonly">
-            <Text className="ac-readonly-row">
-              clientId：{detailClient.clientId}
-            </Text>
+            <Text className="ac-readonly-row">clientId：{detailClient.clientId}</Text>
             <Text className="ac-readonly-row">
               状态：{statusLabel(detailClient.status)}
             </Text>
@@ -275,13 +268,9 @@ export default function AdminClients() {
               disabled={submitting}
               onChange={(e) => void onToggleStatus(detailClient, e.detail.value)}
             />
-            <Text className="ac-status-value">
-              {statusLabel(detailClient.status)}
-            </Text>
+            <Text className="ac-status-value">{statusLabel(detailClient.status)}</Text>
           </View>
-          <Text className="ac-form-hint">
-            status 切换立即生效，服务端不落审计
-          </Text>
+          <Text className="ac-form-hint">status 切换立即生效，服务端不落审计</Text>
 
           <Text className="ac-section-title">编辑（逗号分隔原样提交）</Text>
           <View className="ac-field-group">
@@ -327,9 +316,7 @@ export default function AdminClients() {
           >
             保存
           </Button>
-          <Text className="ac-form-hint">
-            密钥不返明文：详情无 secret 字段
-          </Text>
+          <Text className="ac-form-hint">密钥不返明文：详情无 secret 字段</Text>
 
           <Button
             className="ac-danger"

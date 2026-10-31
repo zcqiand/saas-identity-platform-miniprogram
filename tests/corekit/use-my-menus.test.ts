@@ -63,10 +63,9 @@ function stubStore(): SessionStore {
   return { snapshot: () => undefined } as unknown as SessionStore;
 }
 
-function renderUseMyMenus(options?: {
-  seams?: MyMenusSeams;
-  store?: SessionStore;
-}): { current?: ReturnType<typeof useMyMenus> } {
+function renderUseMyMenus(options?: { seams?: MyMenusSeams; store?: SessionStore }): {
+  current?: ReturnType<typeof useMyMenus>;
+} {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -82,7 +81,9 @@ function renderUseMyMenus(options?: {
 }
 
 /** 在 act 里跑一个动作，吞掉 rejection 供断言。 */
-async function call(fn: () => Promise<unknown>): Promise<{ ok: boolean; value?: unknown }> {
+async function call(
+  fn: () => Promise<unknown>,
+): Promise<{ ok: boolean; value?: unknown }> {
   let out: { ok: boolean; value?: unknown } | undefined;
   await act(async () => {
     try {
@@ -135,7 +136,8 @@ describe("useMyMenus（当前用户有效菜单，knife4 T6）", () => {
       const out = await call(() => hook.current!.load());
       expect(out.value).toBe(true);
       expect(seams.me.meGetMyMenus).toHaveBeenCalledTimes(1);
-      const arg = seams.me.meGetMyMenus.mock.calls[0]?.[0] as Record<string, unknown> | undefined;
+      const arg = seams.me.meGetMyMenus.mock.calls[0]?.[0] as
+        Record<string, unknown> | undefined;
       expect(arg).toBeDefined();
       expect("clientId" in arg!).toBe(false);
       expect(seams.me.meGetMyMenus).toHaveBeenCalledWith({});

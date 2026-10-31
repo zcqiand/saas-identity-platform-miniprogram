@@ -1,9 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import type {
-  CreateSysMenuRequest,
-  SysMenu,
-  UpdateSysMenuRequest,
-} from "../generated";
+import type { CreateSysMenuRequest, SysMenu, UpdateSysMenuRequest } from "../generated";
 import { ClientMenusApi } from "../generated/apis/ClientMenusApi";
 import { CLIENT_ID } from "../config/client";
 import { currentConfig } from "./api-client";
@@ -83,7 +79,11 @@ export function useMenus(options?: UseMenusOptions): {
   tree: MenuNode[];
   load(clientId: string): Promise<boolean>;
   create(clientId: string, request: CreateSysMenuRequest): Promise<boolean>;
-  update(clientId: string, menuId: string, request: UpdateSysMenuRequest): Promise<boolean>;
+  update(
+    clientId: string,
+    menuId: string,
+    request: UpdateSysMenuRequest,
+  ): Promise<boolean>;
   move(clientId: string, menuId: string, parentId: string | null): Promise<boolean>;
   reorder(clientId: string, menuId: string, orderedMenuIds: string[]): Promise<boolean>;
   remove(clientId: string, menuId: string): Promise<boolean>;
@@ -126,37 +126,34 @@ export function useMenus(options?: UseMenusOptions): {
     [clientId],
   );
 
-  const load = useCallback(
-    async (requested: string): Promise<boolean> => {
-      if (busyRef.current) return false;
-      // clientId 空 → 拒（随 swift「no client selected」原文）
-      if (!requested) {
-        setError("no client selected");
-        setPhase("failed");
-        return false;
-      }
-      const api = seamsOf().menus;
-      busyRef.current = true;
-      setPhase("busy");
-      try {
-        // wire 裸数组：Array<SysMenu> 原样落 state（无包装解包）
-        const list = await api.clientMenusListSysMenus({ clientId: requested });
-        setClientId(requested);
-        setMenus(list);
-        setError(undefined);
-        setPhase("idle");
-        return true;
-      } catch (e) {
-        // 失败旧列表保留（不兜底清空），clientId 不动
-        setError(errorMessage(e));
-        setPhase("failed");
-        return false;
-      } finally {
-        busyRef.current = false;
-      }
-    },
-    [],
-  );
+  const load = useCallback(async (requested: string): Promise<boolean> => {
+    if (busyRef.current) return false;
+    // clientId 空 → 拒（随 swift「no client selected」原文）
+    if (!requested) {
+      setError("no client selected");
+      setPhase("failed");
+      return false;
+    }
+    const api = seamsOf().menus;
+    busyRef.current = true;
+    setPhase("busy");
+    try {
+      // wire 裸数组：Array<SysMenu> 原样落 state（无包装解包）
+      const list = await api.clientMenusListSysMenus({ clientId: requested });
+      setClientId(requested);
+      setMenus(list);
+      setError(undefined);
+      setPhase("idle");
+      return true;
+    } catch (e) {
+      // 失败旧列表保留（不兜底清空），clientId 不动
+      setError(errorMessage(e));
+      setPhase("failed");
+      return false;
+    } finally {
+      busyRef.current = false;
+    }
+  }, []);
 
   const create = useCallback(
     async (requested: string, request: CreateSysMenuRequest): Promise<boolean> => {
@@ -188,7 +185,11 @@ export function useMenus(options?: UseMenusOptions): {
   );
 
   const update = useCallback(
-    async (requested: string, menuId: string, request: UpdateSysMenuRequest): Promise<boolean> => {
+    async (
+      requested: string,
+      menuId: string,
+      request: UpdateSysMenuRequest,
+    ): Promise<boolean> => {
       if (busyRef.current) return false;
       if (!guardClient(requested)) return false;
       const api = seamsOf().menus;
@@ -218,7 +219,11 @@ export function useMenus(options?: UseMenusOptions): {
   );
 
   const move = useCallback(
-    async (requested: string, menuId: string, parentId: string | null): Promise<boolean> => {
+    async (
+      requested: string,
+      menuId: string,
+      parentId: string | null,
+    ): Promise<boolean> => {
       if (busyRef.current) return false;
       if (!guardClient(requested)) return false;
       const api = seamsOf().menus;
@@ -248,7 +253,11 @@ export function useMenus(options?: UseMenusOptions): {
   );
 
   const reorder = useCallback(
-    async (requested: string, menuId: string, orderedMenuIds: string[]): Promise<boolean> => {
+    async (
+      requested: string,
+      menuId: string,
+      orderedMenuIds: string[],
+    ): Promise<boolean> => {
       if (busyRef.current) return false;
       if (!guardClient(requested)) return false;
       const api = seamsOf().menus;
@@ -307,5 +316,17 @@ export function useMenus(options?: UseMenusOptions): {
     [guardClient],
   );
 
-  return { phase, error, clientId, menus, tree, load, create, update, move, reorder, remove };
+  return {
+    phase,
+    error,
+    clientId,
+    menus,
+    tree,
+    load,
+    create,
+    update,
+    move,
+    reorder,
+    remove,
+  };
 }

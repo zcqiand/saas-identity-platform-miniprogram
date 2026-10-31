@@ -65,10 +65,9 @@ function stubStore(): SessionStore {
   return { snapshot: () => undefined } as unknown as SessionStore;
 }
 
-function renderUseMenus(options?: {
-  seams?: MenusSeams;
-  store?: SessionStore;
-}): { current?: ReturnType<typeof useMenus> } {
+function renderUseMenus(options?: { seams?: MenusSeams; store?: SessionStore }): {
+  current?: ReturnType<typeof useMenus>;
+} {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -84,7 +83,9 @@ function renderUseMenus(options?: {
 }
 
 /** 在 act 里跑一个动作，吞掉 rejection 供断言。 */
-async function call(fn: () => Promise<unknown>): Promise<{ ok: boolean; value?: unknown }> {
+async function call(
+  fn: () => Promise<unknown>,
+): Promise<{ ok: boolean; value?: unknown }> {
   let out: { ok: boolean; value?: unknown } | undefined;
   await act(async () => {
     try {
@@ -145,7 +146,9 @@ describe("useMenus（菜单管理面，knife4 T4）", () => {
 
       const out = await call(() => hook.current!.load(CLIENT));
       expect(out.value).toBe(true);
-      expect(seams.menus.clientMenusListSysMenus).toHaveBeenCalledWith({ clientId: CLIENT });
+      expect(seams.menus.clientMenusListSysMenus).toHaveBeenCalledWith({
+        clientId: CLIENT,
+      });
       expect(hook.current!.clientId).toBe(CLIENT);
       // wire 裸数组原样落 state（不排序——排序是 tree 的职责）
       expect(hook.current!.menus).toEqual([child2, parent, child]);
@@ -168,7 +171,12 @@ describe("useMenus（菜单管理面，knife4 T4）", () => {
       const created = menu({ id: "c9", parentId: "p1", title: "新建菜单", sortOrder: 5 });
       seams.menus.clientMenusCreateSysMenu.mockResolvedValue(created);
 
-      const request = { parentId: "p1", title: "新建菜单", type: SysMenuType.Menu, sortOrder: 5 };
+      const request = {
+        parentId: "p1",
+        title: "新建菜单",
+        type: SysMenuType.Menu,
+        sortOrder: 5,
+      };
       const out = await call(() => hook.current!.create(CLIENT, request));
       expect(out.value).toBe(true);
       expect(seams.menus.clientMenusCreateSysMenu).toHaveBeenCalledTimes(1);
@@ -230,9 +238,12 @@ describe("useMenus（菜单管理面，knife4 T4）", () => {
       const captured = seams.menus.clientMenusMoveSysMenu.mock.calls[0]![0] as {
         clientMenusMoveSysMenuRequest: Record<string, unknown>;
       };
-      expect(Object.prototype.hasOwnProperty.call(captured.clientMenusMoveSysMenuRequest, "parentId")).toBe(
-        false,
-      );
+      expect(
+        Object.prototype.hasOwnProperty.call(
+          captured.clientMenusMoveSysMenuRequest,
+          "parentId",
+        ),
+      ).toBe(false);
       expect(captured.clientMenusMoveSysMenuRequest).toEqual({});
     },
   );

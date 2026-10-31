@@ -145,9 +145,7 @@ describe("useTenantApplications（租户订阅应用面，knife3 T8）", () => {
 
   /** 先 load 成功铺底，返回挂载好的 hook。 */
   async function loaded(rows: TenantApplication[] = [appRow()]) {
-    seams.apps.tenantApplicationsListTenantApplications.mockResolvedValue(
-      listRes(rows),
-    );
+    seams.apps.tenantApplicationsListTenantApplications.mockResolvedValue(listRes(rows));
     const hook = mount();
     const out = await call(() => hook.current!.load());
     expect(out.value).toBe(true);
@@ -175,7 +173,9 @@ describe("useTenantApplications（租户订阅应用面，knife3 T8）", () => {
       expect(hook.current!.phase).toBe("idle");
       expect(hook.current!.error).toBeUndefined();
       // 当前租户快照上下文；分页参数不传（后端默认）
-      expect(seams.apps.tenantApplicationsListTenantApplications).toHaveBeenCalledTimes(1);
+      expect(seams.apps.tenantApplicationsListTenantApplications).toHaveBeenCalledTimes(
+        1,
+      );
       expect(seams.apps.tenantApplicationsListTenantApplications).toHaveBeenCalledWith({
         tenantId: "t1",
       });
@@ -205,17 +205,23 @@ describe("useTenantApplications（租户订阅应用面，knife3 T8）", () => {
 
       const out = await call(() => hook.current!.subscribe("lab-management"));
       expect(out.value).toBe(true);
-      expect(seams.apps.tenantApplicationsSubscribeTenantApplication).toHaveBeenCalledTimes(1);
-      const arg = seams.apps.tenantApplicationsSubscribeTenantApplication.mock.calls[0]![0];
+      expect(
+        seams.apps.tenantApplicationsSubscribeTenantApplication,
+      ).toHaveBeenCalledTimes(1);
+      const arg =
+        seams.apps.tenantApplicationsSubscribeTenantApplication.mock.calls[0]![0];
       expect(arg.tenantId).toBe("t1");
-      expect(arg.subscribeTenantApplicationRequest).toEqual({ clientId: "lab-management" });
+      expect(arg.subscribeTenantApplicationRequest).toEqual({
+        clientId: "lab-management",
+      });
       expect("expireTime" in arg.subscribeTenantApplicationRequest).toBe(false);
       expect(hook.current!.applications).toEqual([...rows, created]);
       expect(hook.current!.phase).toBe("idle");
 
       // 带 expireTime：原样进体（Date 形态直传，生成物 runtime 管序列化）
       await call(() => hook.current!.subscribe("lab-management", D1));
-      const arg2 = seams.apps.tenantApplicationsSubscribeTenantApplication.mock.calls[1]![0];
+      const arg2 =
+        seams.apps.tenantApplicationsSubscribeTenantApplication.mock.calls[1]![0];
       expect(arg2.subscribeTenantApplicationRequest).toEqual({
         clientId: "lab-management",
         expireTime: D1,
@@ -276,10 +282,7 @@ describe("useTenantApplications（租户订阅应用面，knife3 T8）", () => {
     ["M00.F05.I04"],
     "remove 成功 → clientId 字符串寻址原样（非 UUID）+ 本地移除",
     async () => {
-      const rows = [
-        appRow(),
-        appRow({ id: "app-2", clientId: "lab-management" }),
-      ];
+      const rows = [appRow(), appRow({ id: "app-2", clientId: "lab-management" })];
       const { hook } = await loaded(rows);
       seams.apps.tenantApplicationsRemoveTenantApplication.mockResolvedValue(undefined);
 

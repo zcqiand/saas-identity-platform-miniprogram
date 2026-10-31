@@ -52,9 +52,9 @@ function makeSeams() {
 }
 type SeamsFake = ReturnType<typeof makeSeams>;
 
-function renderUseAdminTenants(
-  options?: { seams?: AdminTenantsSeams },
-): { current?: ReturnType<typeof useAdminTenants> } {
+function renderUseAdminTenants(options?: { seams?: AdminTenantsSeams }): {
+  current?: ReturnType<typeof useAdminTenants>;
+} {
   const container = document.createElement("div");
   document.body.appendChild(container);
   const root = createRoot(container);
@@ -180,19 +180,15 @@ describe("useAdminTenants（admin 租户面，knife3 T2）", () => {
     },
   );
 
-  fnTest(
-    ["M00.F01.I03"],
-    "get 成功 → 返回 Tenant 本体（请求带 { id }）",
-    async () => {
-      const { hook } = await loaded();
-      const found = tenant({ id: "t2", tenantKey: "beta", name: "Beta" });
-      seams.adminTenants.adminTenantsGetTenant.mockResolvedValue(found);
+  fnTest(["M00.F01.I03"], "get 成功 → 返回 Tenant 本体（请求带 { id }）", async () => {
+    const { hook } = await loaded();
+    const found = tenant({ id: "t2", tenantKey: "beta", name: "Beta" });
+    seams.adminTenants.adminTenantsGetTenant.mockResolvedValue(found);
 
-      const out = await call(() => hook.current!.get("t2"));
-      expect(out.value).toEqual(found);
-      expect(seams.adminTenants.adminTenantsGetTenant).toHaveBeenCalledWith({ id: "t2" });
-    },
-  );
+    const out = await call(() => hook.current!.get("t2"));
+    expect(out.value).toEqual(found);
+    expect(seams.adminTenants.adminTenantsGetTenant).toHaveBeenCalledWith({ id: "t2" });
+  });
 
   fnTest(
     ["M00.F01.I03"],
@@ -209,45 +205,40 @@ describe("useAdminTenants（admin 租户面，knife3 T2）", () => {
     },
   );
 
-  fnTest(
-    ["M00.F01.I04"],
-    "update 成功 → 列表按 id 原位替换（其余项不动）",
-    async () => {
-      const rows = [tenant(), tenant({ id: "t2", tenantKey: "beta", name: "Beta" })];
-      const { hook } = await loaded(rows);
-      const updated = tenant({ id: "t2", tenantKey: "beta", name: "Beta v2", status: "suspended" });
-      seams.adminTenants.adminTenantsUpdateTenant.mockResolvedValue(updated);
+  fnTest(["M00.F01.I04"], "update 成功 → 列表按 id 原位替换（其余项不动）", async () => {
+    const rows = [tenant(), tenant({ id: "t2", tenantKey: "beta", name: "Beta" })];
+    const { hook } = await loaded(rows);
+    const updated = tenant({
+      id: "t2",
+      tenantKey: "beta",
+      name: "Beta v2",
+      status: "suspended",
+    });
+    seams.adminTenants.adminTenantsUpdateTenant.mockResolvedValue(updated);
 
-      const request: UpdateTenantRequest = { name: "Beta v2", status: "suspended" };
-      const out = await call(() => hook.current!.update("t2", request));
-      expect(out.value).toBe(true);
-      expect(seams.adminTenants.adminTenantsUpdateTenant).toHaveBeenCalledWith({
-        id: "t2",
-        updateTenantRequest: request,
-      });
-      expect(hook.current!.tenants).toEqual([rows[0], updated]);
-      expect(hook.current!.phase).toBe("idle");
-    },
-  );
+    const request: UpdateTenantRequest = { name: "Beta v2", status: "suspended" };
+    const out = await call(() => hook.current!.update("t2", request));
+    expect(out.value).toBe(true);
+    expect(seams.adminTenants.adminTenantsUpdateTenant).toHaveBeenCalledWith({
+      id: "t2",
+      updateTenantRequest: request,
+    });
+    expect(hook.current!.tenants).toEqual([rows[0], updated]);
+    expect(hook.current!.phase).toBe("idle");
+  });
 
-  fnTest(
-    ["M00.F01.I04"],
-    "update 失败（500）→ 返回 false + 列表原样不动",
-    async () => {
-      const rows = [tenant(), tenant({ id: "t2", tenantKey: "beta", name: "Beta" })];
-      const { hook } = await loaded(rows);
-      seams.adminTenants.adminTenantsUpdateTenant.mockRejectedValue(
-        new ResponseError(new Response(null, { status: 500 })),
-      );
+  fnTest(["M00.F01.I04"], "update 失败（500）→ 返回 false + 列表原样不动", async () => {
+    const rows = [tenant(), tenant({ id: "t2", tenantKey: "beta", name: "Beta" })];
+    const { hook } = await loaded(rows);
+    seams.adminTenants.adminTenantsUpdateTenant.mockRejectedValue(
+      new ResponseError(new Response(null, { status: 500 })),
+    );
 
-      const out = await call(() =>
-        hook.current!.update("t2", { name: "X" }),
-      );
-      expect(out.value).toBe(false);
-      expect(hook.current!.tenants).toEqual(rows);
-      expect(hook.current!.phase).toBe("failed");
-    },
-  );
+    const out = await call(() => hook.current!.update("t2", { name: "X" }));
+    expect(out.value).toBe(false);
+    expect(hook.current!.tenants).toEqual(rows);
+    expect(hook.current!.phase).toBe("failed");
+  });
 
   fnTest(
     ["M00.F01.I05"],
@@ -259,28 +250,26 @@ describe("useAdminTenants（admin 租户面，knife3 T2）", () => {
 
       const out = await call(() => hook.current!.remove("t1"));
       expect(out.value).toBe(true);
-      expect(seams.adminTenants.adminTenantsDeleteTenant).toHaveBeenCalledWith({ id: "t1" });
+      expect(seams.adminTenants.adminTenantsDeleteTenant).toHaveBeenCalledWith({
+        id: "t1",
+      });
       expect(hook.current!.tenants).toEqual([rows[1]]);
       expect(hook.current!.phase).toBe("idle");
     },
   );
 
-  fnTest(
-    ["M00.F01.I05"],
-    "remove 失败（500）→ 返回 false + 列表原样不动",
-    async () => {
-      const rows = [tenant()];
-      const { hook } = await loaded(rows);
-      seams.adminTenants.adminTenantsDeleteTenant.mockRejectedValue(
-        new ResponseError(new Response(null, { status: 500 })),
-      );
+  fnTest(["M00.F01.I05"], "remove 失败（500）→ 返回 false + 列表原样不动", async () => {
+    const rows = [tenant()];
+    const { hook } = await loaded(rows);
+    seams.adminTenants.adminTenantsDeleteTenant.mockRejectedValue(
+      new ResponseError(new Response(null, { status: 500 })),
+    );
 
-      const out = await call(() => hook.current!.remove("t1"));
-      expect(out.value).toBe(false);
-      expect(hook.current!.tenants).toEqual(rows);
-      expect(hook.current!.phase).toBe("failed");
-    },
-  );
+    const out = await call(() => hook.current!.remove("t1"));
+    expect(out.value).toBe(false);
+    expect(hook.current!.tenants).toEqual(rows);
+    expect(hook.current!.phase).toBe("failed");
+  });
 
   // 工程设施测试，不挂业务功能 ID（fn.ts 纪律）
   it("无缝未注时 defaultSeams 走 currentConfig()，缺失 throw（照 use-auth 形状 fail-fast）", async () => {

@@ -70,7 +70,11 @@ function MenuTreeRows(props: {
                     {menu.type} · {menu.path ?? "—"}
                   </Text>
                 </View>
-                <Text className={menu.status === 1 ? "menus-badge menus-badge-on" : "menus-badge"}>
+                <Text
+                  className={
+                    menu.status === 1 ? "menus-badge menus-badge-on" : "menus-badge"
+                  }
+                >
                   {statusLabel(menu.status)}
                 </Text>
               </View>
@@ -116,8 +120,19 @@ function MenuTreeRows(props: {
 }
 
 export default function Menus() {
-  const { clientId, menus, tree, phase, error, load, create, update, move, reorder, remove } =
-    useMenus();
+  const {
+    clientId,
+    menus,
+    tree,
+    phase,
+    error,
+    load,
+    create,
+    update,
+    move,
+    reorder,
+    remove,
+  } = useMenus();
   const { clients, load: loadClients } = useAdminClients();
 
   const [selectedClientId, setSelectedClientId] = useState("");
@@ -168,9 +183,7 @@ export default function Menus() {
   // （第二参传父菜单 id——契约以父菜单 id 寻址，根级不提供此操作）
   const onMove = (menu: SysMenu, delta: number) => {
     if (!clientId || busy) return;
-    const segment = menus
-      .filter((m) => m.parentId === menu.parentId)
-      .sort(compareMenu);
+    const segment = menus.filter((m) => m.parentId === menu.parentId).sort(compareMenu);
     const index = segment.findIndex((m) => m.id === menu.id);
     const target = index + delta;
     if (index < 0 || target < 0 || target >= segment.length) return;
@@ -258,7 +271,11 @@ export default function Menus() {
     <View className="menus">
       <View className="menus-header">
         <Text className="menus-title">菜单管理</Text>
-        <Button className="menus-new" disabled={!selectedClientId || busy} onClick={openCreate}>
+        <Button
+          className="menus-new"
+          disabled={!selectedClientId || busy}
+          onClick={openCreate}
+        >
           新建菜单
         </Button>
       </View>
@@ -298,8 +315,8 @@ export default function Menus() {
                 </View>
               )}
               <Text className="menus-footer">
-                共 {menus.length} 条 · 树由前端组（零值 UUID=根，sortOrder 排序）· 兄弟排序：行内
-                上移/下移（根级不提供——契约 reorder 以父菜单 id 寻址）
+                共 {menus.length} 条 · 树由前端组（零值 UUID=根，sortOrder 排序）·
+                兄弟排序：行内 上移/下移（根级不提供——契约 reorder 以父菜单 id 寻址）
               </Text>
             </>
           ) : null}
@@ -348,13 +365,16 @@ export default function Menus() {
               disabled={busy}
               onChange={(e) => {
                 const index = Number(e.detail.value);
-                setNewParentKey(index === 0 ? "" : (createParentOptions[index - 1]?.id ?? ""));
+                setNewParentKey(
+                  index === 0 ? "" : (createParentOptions[index - 1]?.id ?? ""),
+                );
               }}
             >
               <View className="menus-picker-value">
                 {newParentKey === ""
                   ? "根"
-                  : (createParentOptions.find((m) => m.id === newParentKey)?.title ?? "根")}
+                  : (createParentOptions.find((m) => m.id === newParentKey)?.title ??
+                    "根")}
               </View>
             </Picker>
           </View>
@@ -432,25 +452,36 @@ export default function Menus() {
               disabled={busy}
               onChange={(e) => {
                 const index = Number(e.detail.value);
-                setEditParentKey(index === 0 ? "" : (editParentOptions[index - 1]?.id ?? ""));
+                setEditParentKey(
+                  index === 0 ? "" : (editParentOptions[index - 1]?.id ?? ""),
+                );
               }}
             >
               <View className="menus-picker-value">
                 {editParentKey === ""
                   ? "根"
-                  : (editParentOptions.find((m) => m.id === editParentKey)?.title ?? "根")}
+                  : (editParentOptions.find((m) => m.id === editParentKey)?.title ??
+                    "根")}
               </View>
             </Picker>
           </View>
           <Text className="menus-form-hint">
             父节点变更走 move 缝（PATCH parent）；其余字段走 update（PATCH partial）
           </Text>
-          <Button className="menus-save" disabled={busy} onClick={() => void onSaveEdit()}>
+          <Button
+            className="menus-save"
+            disabled={busy}
+            onClick={() => void onSaveEdit()}
+          >
             保存
           </Button>
 
           <Text className="menus-section-title">危险区</Text>
-          <Button className="menus-danger" disabled={busy} onClick={() => void onDelete()}>
+          <Button
+            className="menus-danger"
+            disabled={busy}
+            onClick={() => void onDelete()}
+          >
             删除菜单
           </Button>
           <Text className="menus-form-hint">删除是危险操作，不可恢复</Text>

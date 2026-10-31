@@ -307,7 +307,12 @@ describe("SessionStore（状态机随 swift SessionStore）", () => {
         store.adoptLogin(loginRes());
         const before = Date.now();
         store.adoptOAuthToken(
-          tokenRes({ accessToken: "at2", refreshToken: "rt2", expiresIn: 600, tenantId: "t2" }),
+          tokenRes({
+            accessToken: "at2",
+            refreshToken: "rt2",
+            expiresIn: 600,
+            tenantId: "t2",
+          }),
         );
         expect(tokenStore.getToken()).toBe("at2");
         expect(tokenStore.getRefreshToken()).toBe("rt2");

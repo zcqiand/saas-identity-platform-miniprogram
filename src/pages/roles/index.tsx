@@ -334,8 +334,8 @@ export default function Roles() {
           {grantsLoading ? (
             // 加载窗口期与失败后不渲染清单（menuList 可能还是上一角色 client 的）
             <Text className="roles-empty">加载中…</Text>
-          ) : !grantsReady ? // loadGrants 失败：不渲染陈旧清单不放行按钮，失败文案走页尾红字
-          null : menuList.length === 0 ? (
+          ) : !grantsReady ? null : menuList // loadGrants 失败：不渲染陈旧清单不放行按钮，失败文案走页尾红字
+            .length === 0 ? (
             <Text className="roles-empty">该 client 无菜单可授</Text>
           ) : (
             <View className="roles-menu-list">

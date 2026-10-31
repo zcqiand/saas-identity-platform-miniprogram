@@ -93,9 +93,7 @@ export default function Members() {
   };
 
   const canSubmitCreate =
-    username.trim().length > 0 &&
-    createEmail.trim().length > 0 &&
-    password.length >= 6;
+    username.trim().length > 0 && createEmail.trim().length > 0 && password.length >= 6;
   const canSubmitInvite = inviteEmail.trim().length > 0;
 
   const submitCreate = async () => {
@@ -136,9 +134,7 @@ export default function Members() {
     if (submitting) return;
     // active/invited → 挂起；suspended/disabled → 恢复（按当前状态二选一，直调）
     const target: TenantMemberStatus =
-      member.status === "active" || member.status === "invited"
-        ? "suspended"
-        : "active";
+      member.status === "active" || member.status === "invited" ? "suspended" : "active";
     setSubmitting(true);
     await changeStatus(member.id, target);
     setSubmitting(false);
@@ -158,9 +154,7 @@ export default function Members() {
 
   const toggleRole = (roleId: string) => {
     setSelectedRoleIds((prev) =>
-      prev.includes(roleId)
-        ? prev.filter((id) => id !== roleId)
-        : [...prev, roleId],
+      prev.includes(roleId) ? prev.filter((id) => id !== roleId) : [...prev, roleId],
     );
   };
 
@@ -217,9 +211,7 @@ export default function Members() {
 
       {mode.kind === "idle" ? (
         members.length === 0 ? (
-          <Text className="members-empty">
-            {phase === "busy" ? "加载中…" : "无成员"}
-          </Text>
+          <Text className="members-empty">{phase === "busy" ? "加载中…" : "无成员"}</Text>
         ) : (
           <View className="members-list">
             {members.map((m) => (
@@ -319,11 +311,7 @@ export default function Members() {
             onInput={(e) => setEditMobile(e.detail.value)}
           />
           <Text className="members-form-hint">留空的字段不提交</Text>
-          <Button
-            className="members-save"
-            disabled={submitting}
-            onClick={submitEdit}
-          >
+          <Button className="members-save" disabled={submitting} onClick={submitEdit}>
             保存
           </Button>
           <Button className="members-cancel" onClick={closeForm}>
@@ -334,9 +322,7 @@ export default function Members() {
 
       {mode.kind === "roles" ? (
         <View className="members-form">
-          <Text className="members-form-title">
-            角色分配：{mode.member.username}
-          </Text>
+          <Text className="members-form-title">角色分配：{mode.member.username}</Text>
           {roles.length === 0 ? (
             <Text className="members-empty">
               {phase === "busy" ? "加载中…" : "无角色"}
@@ -350,9 +336,7 @@ export default function Members() {
                   className="members-role"
                   onClick={() => toggleRole(role.id)}
                 >
-                  <Text className="members-role-check">
-                    {checked ? "✓" : "○"}
-                  </Text>
+                  <Text className="members-role-check">{checked ? "✓" : "○"}</Text>
                   <Text className="members-role-name">{role.roleName}</Text>
                   <Text className="members-role-code">{role.roleCode}</Text>
                 </View>
@@ -362,11 +346,7 @@ export default function Members() {
           <Text className="members-form-hint">
             保存为全量覆盖：提交的勾选集合就是该成员的最终角色集
           </Text>
-          <Button
-            className="members-save"
-            disabled={submitting}
-            onClick={submitRoles}
-          >
+          <Button className="members-save" disabled={submitting} onClick={submitRoles}>
             保存
           </Button>
           <Button className="members-cancel" onClick={closeForm}>

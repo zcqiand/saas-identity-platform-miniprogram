@@ -14,9 +14,7 @@ import { createRoot } from "react-dom/client";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
-const buttonProps = vi.hoisted(
-  () => [] as Array<Record<string, unknown>>,
-);
+const buttonProps = vi.hoisted(() => [] as Array<Record<string, unknown>>);
 
 // 平台组件缝：View/Text 透传 children 保渲染链，Button 只捕 props——禁用语义
 // 直接断言 props.disabled，不探 Taro 组件 DOM 形状。

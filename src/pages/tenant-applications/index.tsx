@@ -40,9 +40,7 @@ function clientsApiOf(): AdminClientsApi {
 }
 
 type Mode =
-  | { kind: "idle" }
-  | { kind: "subscribe" }
-  | { kind: "detail"; clientId: string };
+  { kind: "idle" } | { kind: "subscribe" } | { kind: "detail"; clientId: string };
 
 export default function TenantApplications() {
   const { applications, phase, error, load, subscribe, update, remove } =
@@ -226,10 +224,7 @@ export default function TenantApplications() {
               </View>
             </Picker>
             {subscribeExpire ? (
-              <Text
-                className="apps-picker-clear"
-                onClick={() => setSubscribeExpire("")}
-              >
+              <Text className="apps-picker-clear" onClick={() => setSubscribeExpire("")}>
                 不设置
               </Text>
             ) : null}
@@ -244,9 +239,7 @@ export default function TenantApplications() {
           <Button className="apps-cancel" onClick={closeForm}>
             取消
           </Button>
-          <Text className="apps-form-hint">
-            到期时间默认一年后，可在详情页改期或停用
-          </Text>
+          <Text className="apps-form-hint">到期时间默认一年后，可在详情页改期或停用</Text>
         </View>
       ) : null}
 
@@ -255,8 +248,12 @@ export default function TenantApplications() {
           <Text className="apps-form-title">订阅详情</Text>
           <View className="apps-readonly">
             <Text className="apps-readonly-row">clientId：{detailApp.clientId}</Text>
-            <Text className="apps-readonly-row">状态：{statusLabel(detailApp.status)}</Text>
-            <Text className="apps-readonly-row">创建于：{fmtDate(detailApp.createdAt)}</Text>
+            <Text className="apps-readonly-row">
+              状态：{statusLabel(detailApp.status)}
+            </Text>
+            <Text className="apps-readonly-row">
+              创建于：{fmtDate(detailApp.createdAt)}
+            </Text>
             <Text className="apps-readonly-row">
               到期：{detailApp.expireTime ? fmtDate(detailApp.expireTime) : "—"}
             </Text>
@@ -279,9 +276,7 @@ export default function TenantApplications() {
             disabled={submitting}
             onChange={(e) => setExpireInput(e.detail.value)}
           >
-            <View className="apps-picker-value">
-              {expireInput || "无到期时间"}
-            </View>
+            <View className="apps-picker-value">{expireInput || "无到期时间"}</View>
           </Picker>
           <Button
             className="apps-save"

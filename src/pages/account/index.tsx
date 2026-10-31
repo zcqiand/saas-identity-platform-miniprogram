@@ -176,9 +176,7 @@ export default function Account() {
         {currentTenantId ? (
           <View
             className="account-entry"
-            onClick={() =>
-              Taro.navigateTo({ url: "/pages/tenant-applications/index" })
-            }
+            onClick={() => Taro.navigateTo({ url: "/pages/tenant-applications/index" })}
           >
             <Text className="account-entry-name">租户应用</Text>
             <Text className="account-entry-arrow">›</Text>

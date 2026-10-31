@@ -135,24 +135,29 @@ export function useAdminClients(options?: UseAdminClientsOptions): {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const create = useCallback(async (request: CreateOAuthClientRequest): Promise<boolean> => {
-    const api = seamsOf().clients;
-    setPhase("busy");
-    try {
-      // 捕获体原样透传：grantTypes 等全部由页面传，hook 不兜底默认值
-      const created = await api.adminClientsCreateClient({ createOAuthClientRequest: request });
-      // 成功原位追加，不重拉 listClients（随 swift）
-      setClients((prev) => [...prev, created]);
-      setError(undefined);
-      setPhase("idle");
-      return true;
-    } catch (e) {
-      setError(errorMessage(e));
-      setPhase("failed");
-      return false;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const create = useCallback(
+    async (request: CreateOAuthClientRequest): Promise<boolean> => {
+      const api = seamsOf().clients;
+      setPhase("busy");
+      try {
+        // 捕获体原样透传：grantTypes 等全部由页面传，hook 不兜底默认值
+        const created = await api.adminClientsCreateClient({
+          createOAuthClientRequest: request,
+        });
+        // 成功原位追加，不重拉 listClients（随 swift）
+        setClients((prev) => [...prev, created]);
+        setError(undefined);
+        setPhase("idle");
+        return true;
+      } catch (e) {
+        setError(errorMessage(e));
+        setPhase("failed");
+        return false;
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [],
+  );
 
   const update = useCallback(
     async (clientId: string, request: UpdateOAuthClientRequest): Promise<boolean> => {
@@ -165,7 +170,9 @@ export function useAdminClients(options?: UseAdminClientsOptions): {
           updateOAuthClientRequest: request,
         });
         // 成功按 clientId 原位替换
-        setClients((prev) => prev.map((c) => (c.clientId === updated.clientId ? updated : c)));
+        setClients((prev) =>
+          prev.map((c) => (c.clientId === updated.clientId ? updated : c)),
+        );
         setError(undefined);
         setPhase("idle");
         return true;
@@ -199,44 +206,63 @@ export function useAdminClients(options?: UseAdminClientsOptions): {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const setStatus = useCallback(async (clientId: string, status: number): Promise<boolean> => {
-    const api = seamsOf().clients;
-    setPhase("busy");
-    try {
-      // M04.F02.I01：status Int 原样透传（1=启用 0=停用），hook 不换算
-      const toggled = await api.adminClientsSetClientStatus({
-        clientId,
-        adminClientsSetClientStatusRequest: { status },
-      });
-      // 成功按 clientId 原位替换
-      setClients((prev) => prev.map((c) => (c.clientId === toggled.clientId ? toggled : c)));
-      setError(undefined);
-      setPhase("idle");
-      return true;
-    } catch (e) {
-      setError(errorMessage(e));
-      setPhase("failed");
-      return false;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const setStatus = useCallback(
+    async (clientId: string, status: number): Promise<boolean> => {
+      const api = seamsOf().clients;
+      setPhase("busy");
+      try {
+        // M04.F02.I01：status Int 原样透传（1=启用 0=停用），hook 不换算
+        const toggled = await api.adminClientsSetClientStatus({
+          clientId,
+          adminClientsSetClientStatusRequest: { status },
+        });
+        // 成功按 clientId 原位替换
+        setClients((prev) =>
+          prev.map((c) => (c.clientId === toggled.clientId ? toggled : c)),
+        );
+        setError(undefined);
+        setPhase("idle");
+        return true;
+      } catch (e) {
+        setError(errorMessage(e));
+        setPhase("failed");
+        return false;
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [],
+  );
 
-  const publicInfo = useCallback(async (clientId: string): Promise<OAuthClientPublicInfo | undefined> => {
-    const api = seamsOf().publicClients;
-    setPhase("busy");
-    try {
-      // I06：公开端点匿名可读（ClientsApi.clientsGetClient）
-      const info = await api.clientsGetClient({ clientId });
-      setError(undefined);
-      setPhase("idle");
-      return info;
-    } catch (e) {
-      setError(errorMessage(e));
-      setPhase("failed");
-      return undefined;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const publicInfo = useCallback(
+    async (clientId: string): Promise<OAuthClientPublicInfo | undefined> => {
+      const api = seamsOf().publicClients;
+      setPhase("busy");
+      try {
+        // I06：公开端点匿名可读（ClientsApi.clientsGetClient）
+        const info = await api.clientsGetClient({ clientId });
+        setError(undefined);
+        setPhase("idle");
+        return info;
+      } catch (e) {
+        setError(errorMessage(e));
+        setPhase("failed");
+        return undefined;
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [],
+  );
 
-  return { clients, phase, error, load, get, create, update, remove, setStatus, publicInfo };
+  return {
+    clients,
+    phase,
+    error,
+    load,
+    get,
+    create,
+    update,
+    remove,
+    setStatus,
+    publicInfo,
+  };
 }

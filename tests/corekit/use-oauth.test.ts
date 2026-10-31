@@ -74,7 +74,10 @@ type SeamsFake = ReturnType<typeof makeSeams>;
 /** 内存缝 SessionStore：adoptLogin 入账 ready（adoptOAuthToken 需 ready）。
  * apiBaseUrl 用空串 thunk：reBootstrap 对空 baseURL 早退，本文件模块注册表里
  * 不落全局 config（defaultSeams fail-fast 测试依赖 currentConfig() 保持缺失）。 */
-function makeStore(): { store: SessionStore; tokens: ReturnType<typeof createInMemoryTokenStore> } {
+function makeStore(): {
+  store: SessionStore;
+  tokens: ReturnType<typeof createInMemoryTokenStore>;
+} {
   // SessionStore 无 token 读面：入账断言打在注入的 TokenStore 缝上
   const tokens = createInMemoryTokenStore();
   const store = new SessionStore({
@@ -190,8 +193,7 @@ describe("useOAuth（授权码三步流，knife4 T2）", () => {
       const out = await call(() => hook.current!.authorize());
       expect(out.value).toBe(true);
 
-      const req = seams.oauth.oAuthAuthorize.mock.calls[0]![0]
-        .authorizeCodeRequest;
+      const req = seams.oauth.oAuthAuthorize.mock.calls[0]![0].authorizeCodeRequest;
       // state 回显：hook.state 与 seam 实收的 request.state 相等，且呈 uuid v4 形状
       expect(hook.current!.state).toBe(req.state);
       expect(req.state).toMatch(
@@ -387,8 +389,7 @@ describe("useOAuth（授权码三步流，knife4 T2）", () => {
       const pendingAuthorize = hook.current!.authorize();
       busyOut = await hook.current!.exchangeCode();
       // 收尾：echo resolve 放行卡住的 authorize，避免悬挂
-      const sent =
-        seams.oauth.oAuthAuthorize.mock.calls[0]![0].authorizeCodeRequest;
+      const sent = seams.oauth.oAuthAuthorize.mock.calls[0]![0].authorizeCodeRequest;
       resolveAuthorize({ code: "ac-late", state: sent.state });
       authorizeOut = await pendingAuthorize;
     });

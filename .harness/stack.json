@@ -9,6 +9,7 @@
       "cmd": [
         "npx",
         "--no",
+        "--",
         "prettier",
         "--check",
         "src",
@@ -22,6 +23,7 @@
       "cmd": [
         "npx",
         "--no",
+        "--",
         "eslint",
         "src",
         "tests",
@@ -34,6 +36,7 @@
       "cmd": [
         "npx",
         "--no",
+        "--",
         "tsc",
         "--noEmit"
       ],
@@ -44,6 +47,7 @@
       "cmd": [
         "npx",
         "--no",
+        "--",
         "vitest",
         "run"
       ],
@@ -54,6 +58,7 @@
       "cmd": [
         "npx",
         "--no",
+        "--",
         "taro",
         "build",
         "--type",
@@ -65,6 +70,7 @@
   "trace_cmd": [
     "npx",
     "--no",
+    "--",
     "vitest",
     "run"
   ],

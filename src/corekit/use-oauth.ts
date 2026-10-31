@@ -39,7 +39,10 @@ export const OAUTH_DEFAULT_SCOPE = "openid";
 
 /** uuid v4 形状（8-4-4-4-12 十六进制）：Math.random 每 4 位一签，禁引依赖。 */
 export function generateOAuthState(): string {
-  const hex4 = () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, "0");
+  const hex4 = () =>
+    Math.floor(Math.random() * 0x10000)
+      .toString(16)
+      .padStart(4, "0");
   return `${hex4()}${hex4()}-${hex4()}-${hex4()}-${hex4()}-${hex4()}${hex4()}${hex4()}`;
 }
 

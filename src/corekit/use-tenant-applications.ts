@@ -100,9 +100,7 @@ export function useTenantApplications(options?: UseTenantApplicationsOptions): {
 
   const replaceRow = useCallback((row: TenantApplication) => {
     // 路径寻址键是 clientId（字符串，非 UUID），不按 id 替换
-    setApplications((prev) =>
-      prev.map((a) => (a.clientId === row.clientId ? row : a)),
-    );
+    setApplications((prev) => prev.map((a) => (a.clientId === row.clientId ? row : a)));
   }, []);
 
   // @impl M00.F05.I01 — 订阅应用列表
@@ -212,7 +210,10 @@ export function useTenantApplications(options?: UseTenantApplicationsOptions): {
       const seams = seamsOf();
       setPhase("busy");
       try {
-        await seams.apps.tenantApplicationsRemoveTenantApplication({ tenantId, clientId });
+        await seams.apps.tenantApplicationsRemoveTenantApplication({
+          tenantId,
+          clientId,
+        });
         setApplications((prev) => prev.filter((a) => a.clientId !== clientId));
         setError(undefined);
         setPhase("idle");

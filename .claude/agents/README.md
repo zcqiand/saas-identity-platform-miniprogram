@@ -1,10 +1,10 @@
-# agents/
+# mold/agents/
 
 只放**需要上下文隔离**的任务。按作用域分目录，由 `init_project.py` 安装到
 `output/<项目>/.claude/agents/`。
 
 ```
-agents/
+mold/agents/
 ├── common/      装进每个项目。哈希锁定，改了 L0 门会红
 └── <stack>/     只装进该栈的项目。可自由编辑
 ```

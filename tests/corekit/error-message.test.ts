@@ -17,7 +17,9 @@ describe("errorMessage", () => {
   });
   it("带 cause 的错误透传底层 errMsg（knife2 FetchError 定案形态，duck-typing 不必真 FetchError）", () => {
     const e = Object.assign(
-      new Error("The request failed and the interceptors did not return an alternative response"),
+      new Error(
+        "The request failed and the interceptors did not return an alternative response",
+      ),
       { cause: new Error("request:fail socket time out") },
     );
     expect(errorMessage(e)).toContain("request:fail socket time out");

@@ -54,9 +54,7 @@ export class WeappHeaders {
     cb: (value: string, key: string, headers: WeappHeaders) => void,
     thisArg?: unknown,
   ): void {
-    this.map.forEach((value, key) =>
-      cb.call(thisArg, value, key, this),
-    );
+    this.map.forEach((value, key) => cb.call(thisArg, value, key, this));
   }
 
   entries(): IterableIterator<[string, string]> {
@@ -105,9 +103,7 @@ export class WeappResponse {
   }
 
   blob(): Promise<never> {
-    return Promise.reject(
-      new Error("weapp shim: blob 不支持（当前契约无 blob 端点）"),
-    );
+    return Promise.reject(new Error("weapp shim: blob 不支持（当前契约无 blob 端点）"));
   }
 
   arrayBuffer(): Promise<never> {
