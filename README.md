@@ -1,6 +1,6 @@
-# SaaS 身份平台小程序端
+# SaaS 多租户多应用身份平台小程序端
 
-SaaS 身份平台小程序端（`saas-identity-platform-miniprogram`）——一句话系统定位（待补）。
+SaaS 多租户多应用身份平台小程序端（`saas-identity-platform-miniprogram`）——一句话系统定位（待补）。
 
 本仓为《（书稿信息待补）》案例（待补）的可运行配套工程，是书稿代码块的 **source of truth**。
 

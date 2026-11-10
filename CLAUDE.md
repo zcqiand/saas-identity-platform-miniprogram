@@ -1,11 +1,11 @@
-# CLAUDE.md — SaaS 身份平台小程序端
+# CLAUDE.md — SaaS 多租户多应用身份平台小程序端
 
 > 书稿配套仓 + harness 门禁仓双身份。入口，不是手册。L0 门强制上限 60 行。
-> 本仓为《（书稿信息待补）》案例（待补）（SaaS 身份平台小程序端）的可运行配套工程，是书稿代码块的 **source of truth**。
+> 本仓为《（书稿信息待补）》案例（待补）（SaaS 多租户多应用身份平台小程序端）的可运行配套工程，是书稿代码块的 **source of truth**。
 
 ## 1. 项目定位
 
-SaaS 身份平台小程序端（`saas-identity-platform-miniprogram`，技术栈 `miniprogram`）。一句话定位见 README.md。
+SaaS 多租户多应用身份平台小程序端（`saas-identity-platform-miniprogram`，技术栈 `miniprogram`）。一句话定位见 README.md。
 
 ## 2. 铁律
 

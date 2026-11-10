@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: "身份平台",
+  navigationBarTitleText: "SaaS 多租户多应用身份平台",
 });
